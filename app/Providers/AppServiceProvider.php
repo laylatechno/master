@@ -23,11 +23,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $profil = Profil::where('id', 1)->first();
+        $profil = Profil::first();
         View::share('profil', $profil);
+        
 
         // Menampilkan menu groups dan menu items
-        $menus = MenuGroup::with('items')->get();  // Mengambil menu groups beserta items
+        $menus = MenuGroup::with(['items' => function($query) {
+            $query->where('status', 'Aktif');  // Mengambil hanya items dengan status 'Aktif'
+        }])->where('status', 'Aktif')->get();  // Mengambil hanya MenuGroup dengan status 'Aktif'
+        
         View::share('menus', $menus);
+        
     }
 }

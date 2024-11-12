@@ -1,15 +1,10 @@
 @extends('layouts.app')
-
 @push('css')
 <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
 @endpush
 
-
 @section('content')
 <div class="container-fluid">
-
-
-
     <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
@@ -31,82 +26,79 @@
         </div>
     </div>
     <section class="datatables">
-        <!-- basic table -->
         <div class="row">
             <div class="col-12">
-
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <div class="row">
-                                <div class="col-lg-12 margin-tb">
 
-                                    <div class="pull-right">
-                                        @can('permission-create')
-                                        <a class="btn btn-success mb-2" href="{{ route('permission.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
-                                        @endcan
-                                    </div>
-                                </div>
+                            @if (count($errors) > 0)
+                            <div class="alert alert-danger">
+                                <strong>Whoops!</strong> Ada beberapa masalah dengan data yang anda masukkan.<br><br>
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
+                            @endif
 
-                            @session('success')
-                            <div class="alert alert-success" role="alert">
-                                {{ $value }}
+                            @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
                             </div>
-                            @endsession
-                            <table id="zero_config"
-                                class="table border table-striped table-bordered text-nowrap">
+                            @endif
+
+                            @can('loghistori-deleteall')
+                            <a href="{{ route('log-histori.delete-all') }}" class="btn btn-danger mb-3" onclick="return confirm('Apakah Anda Yakin Akan Menghapus Semua Data, silahkan Back Up terlebih dahulu?')"><i class="fa fa-trash"></i> Hapus Semua Data</a>
+                            @endcan
+                            <table id="scroll_hor"
+                                class="table border table-striped table-bordered display nowrap"
+                                style="width: 100%">
                                 <thead>
-                                    <!-- start row -->
                                     <tr>
                                         <th>No</th>
-                                        <th>Nama</th>
-                                        <th>Guard</th>
-                                        <th>Urutan</th>
-                                        <th width="280px">Action</th>
+                                        <th>Tabel</th>
+                                        <th>ID Entitas</th>
+                                        <th>Aksi</th>
+                                        <th>Waktu</th>
+                                        <th>Pengguna</th>
+                                        <th>Data Lama</th>
+                                        <th>Data Baru</th>
+
                                     </tr>
-                                    <!-- end row -->
                                 </thead>
                                 <tbody>
-                                    @foreach ($data_permission as $p)
+
+                                    @foreach ($data_log_histori as $p)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $p->name }}</td>
-                                        <td>{{ $p->guard_name }}</td>
-                                        <td>{{ $p->urutan }}</td>
-                                        <td>
-                                            <a class="btn btn-warning btn-sm" href="{{ route('permission.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
-                                            @can('permission-edit')
-                                            <a class="btn btn-primary btn-sm" href="{{ route('permission.edit', $p->id) }}"><i class="fa fa-edit"></i> Edit</a>
-                                            @endcan
+                                        <td>{{ $p->Tabel_Asal }}</td>
+                                        <td>{{ $p->ID_Entitas }}</td>
+                                        <td>{{ $p->Aksi }}</td>
+                                        <td>{{ $p->Waktu }}</td>
+                                        <td>{{ $p->Waktu }}</td>
+                                        {{-- <td>{{ $p->user->name }}</td> --}}
+                                        <td>{{ $p->Data_Lama }}</td>
+                                        <td>{{ $p->Data_Baru }}</td>
 
-                                            @can('permission-delete')
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})">
-                                                <i class="fa fa-trash"></i> Delete
-                                            </button>
-                                            <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('permission.destroy', $p->id) }}" style="display:none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-
-                                            @endcan
-                                        </td>
 
                                     </tr>
                                     @endforeach
+
+
+
+
+
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-
-
     </section>
-
-
 </div>
 @endsection
 

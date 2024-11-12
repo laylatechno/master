@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\LogHistori;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use DB;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -24,6 +26,19 @@ class RoleController extends Controller
         $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:role-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    }
+
+    private function simpanLogHistori($aksi, $tabelAsal, $idEntitas, $pengguna, $dataLama, $dataBaru)
+    {
+        $log = new LogHistori();
+        $log->tabel_asal = $tabelAsal;
+        $log->id_entitas = $idEntitas;
+        $log->aksi = $aksi;
+        $log->waktu = now();
+        $log->pengguna = $pengguna;
+        $log->data_lama = $dataLama;
+        $log->data_baru = $dataBaru;
+        $log->save();
     }
 
     /**
@@ -60,7 +75,7 @@ class RoleController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-
+        // Validasi input
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
             'permission' => 'required',
@@ -68,24 +83,43 @@ class RoleController extends Controller
             'name.required' => 'Nama wajib diisi.',
             'name.unique' => 'Nama sudah terdaftar.',
             'permission.required' => 'Permission wajib diisi.',
-
         ]);
-
-
-
+    
+        // Mengonversi array permission menjadi ID
         $permissionsID = array_map(
             function ($value) {
-                return (int)$value;
+                return (int) $value;
             },
             $request->input('permission')
         );
-
+    
+        // Membuat role baru
         $role = Role::create(['name' => $request->input('name')]);
+    
+        // Menyinkronkan permissions dengan role yang baru dibuat
         $role->syncPermissions($permissionsID);
-
+    
+        // Mendapatkan ID pengguna yang sedang login
+        $loggedInUserId = Auth::id();
+    
+        // Mendapatkan nama permission yang disinkronkan
+        $permissions = $role->permissions->pluck('name')->toArray();
+    
+        // Menyusun data log
+        $logData = [
+            'name' => $role->name,
+            'permissions' => $permissions
+        ];
+    
+        // Simpan log histori untuk operasi Create dengan user_id yang sedang login
+        $this->simpanLogHistori('Create', 'Role', $role->id, $loggedInUserId, null, json_encode($logData));
+    
+        // Redirect kembali dengan pesan sukses
         return redirect()->route('roles.index')
             ->with('success', 'Role berhasil dibuat');
     }
+    
+
     /**
      * Display the specified resource.
      *
@@ -132,10 +166,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id): RedirectResponse
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'permission' => 'required',
-        ]);
+        // Validasi input
         $this->validate($request, [
             'name' => 'required',
             'permission' => 'required',
@@ -143,33 +174,92 @@ class RoleController extends Controller
             'name.required' => 'Nama wajib diisi.',
             'permission.required' => 'Permission wajib diisi.',
         ]);
-
+    
+        // Cari role berdasarkan ID
         $role = Role::find($id);
+    
+        // Pastikan role ditemukan
+        if (!$role) {
+            return redirect()->route('roles.index')
+                ->with('error', 'Role tidak ditemukan');
+        }
+    
+        // Menyimpan data lama untuk log
+        $oldPermissions = $role->permissions->pluck('name')->toArray();
+        $oldRoleData = $role->toArray();
+    
+        // Update nama role
         $role->name = $request->input('name');
         $role->save();
-
+    
+        // Proses permissions yang dikirim
         $permissionsID = array_map(
             function ($value) {
                 return (int)$value;
             },
             $request->input('permission')
         );
-
+    
+        // Sinkronisasi permissions dengan role
         $role->syncPermissions($permissionsID);
-
+    
+        // Mendapatkan data permissions yang baru
+        $newPermissions = $role->permissions->pluck('name')->toArray();
+        $loggedInUserId = Auth::id();
+    
+        // Membuat data untuk log histori
+        $oldData = [
+            'name' => $role->name,
+            'permissions' => $oldPermissions,  // Permissions lama
+        ];
+    
+        $newData = [
+            'name' => $role->name,
+            'permissions' => $newPermissions,  // Permissions baru
+        ];
+    
+        // Simpan log histori untuk operasi Update
+        $this->simpanLogHistori('Update', 'Role', $role->id, $loggedInUserId, json_encode($oldData), json_encode($newData));
+    
+        // Redirect kembali dengan pesan sukses
         return redirect()->route('roles.index')
             ->with('success', 'Role berhasil diperbaharui');
     }
+    
+
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id): RedirectResponse
-    {
-        DB::table("roles")->where('id', $id)->delete();
-        return redirect()->route('roles.index')
-            ->with('success', 'Role berhasil dihapus');
-    }
+
+     public function destroy($id): RedirectResponse
+     {
+         // Cari role berdasarkan ID
+         $role = Role::find($id);
+     
+         // Cek jika role ditemukan
+         if (!$role) {
+             return redirect()->route('roles.index')->with('error', 'Role tidak ditemukan');
+         }
+     
+         // Ambil permissions yang terkait dengan role sebelum dihapus
+         $permissions = $role->permissions->pluck('name')->toArray();
+     
+         // Gabungkan data role dengan permissions dalam array
+         $roleData = $role->toArray();
+         $roleData['permissions'] = $permissions;
+     
+         // Simpan log histori sebelum menghapus role, termasuk data permissions
+         $this->simpanLogHistori('Delete', 'Role', $id, Auth::id(), json_encode($roleData), null);
+     
+         // Hapus role
+         $role->delete();
+     
+         // Redirect kembali dengan pesan sukses
+         return redirect()->route('roles.index')->with('success', 'Role berhasil dihapus');
+     }
+     
+     
 }

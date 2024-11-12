@@ -59,6 +59,12 @@
                                     </div>
                                     <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                         <div class="form-group">
+                                            <strong>Urutan:</strong>
+                                            <input type="number" name="urutan" placeholder="Urutan" class="form-control" value="{{ $data_permission->urutan }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                        <div class="form-group">
                                             <strong>Guard:</strong>
                                             <input type="text" name="guard_name" placeholder="Guard" class="form-control" value="{{ $data_permission->guard_name }}">
                                         </div>

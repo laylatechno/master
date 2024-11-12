@@ -9,8 +9,8 @@ class MenuGroup extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'status', 'permission_name', 'position'];
-
+    protected $table = 'menu_groups';
+    protected $guarded = [];
   
 
     // Relasi dengan MenuItem

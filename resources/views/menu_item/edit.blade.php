@@ -13,7 +13,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('menu_item.index') }}">Halaman Role</a></li>
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('menu_item.index') }}">Halaman Menu Item</a></li>
                             <li class="breadcrumb-item">{{ $subtitle }}</li>
                         </ol>
                     </nav>

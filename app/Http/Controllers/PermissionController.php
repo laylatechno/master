@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogHistori;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class PermissionController extends Controller
@@ -22,6 +24,19 @@ class PermissionController extends Controller
         $this->middleware('permission:permission-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:permission-delete', ['only' => ['destroy']]);
     }
+
+    private function simpanLogHistori($aksi, $tabelAsal, $idEntitas, $pengguna, $dataLama, $dataBaru)
+    {
+        $log = new LogHistori();
+        $log->tabel_asal = $tabelAsal;
+        $log->id_entitas = $idEntitas;
+        $log->aksi = $aksi;
+        $log->waktu = now();
+        $log->pengguna = $pengguna;
+        $log->data_lama = $dataLama;
+        $log->data_baru = $dataBaru;
+        $log->save();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -31,9 +46,17 @@ class PermissionController extends Controller
     {
         $title = "Halaman Permission";
         $subtitle = "Menu Permission";
-        $data_permission = Permission::all();
+        $data_permission = Permission::orderByRaw("CASE 
+            WHEN urutan IS NULL THEN 1 
+            WHEN urutan = 0 THEN 2 
+            ELSE 0 
+        END, urutan ASC")->get();
+
         return view('permission.index', compact('data_permission', 'title', 'subtitle'));
     }
+
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -54,26 +77,29 @@ class PermissionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request): RedirectResponse
-{
-    $this->validate($request, [
-        'name' => [
-            'required',
-            Rule::unique('permissions')->where(function ($query) use ($request) {
-                return $query->where('guard_name', $request->guard_name);
-            }),
-        ],
-        'guard_name' => 'required',
-    ], [
-        'name.required' => 'Nama wajib diisi.',
-        'name.unique' => 'Nama sudah terdaftar.',
-        'guard_name.required' => 'Guard wajib diisi.',
-    ]);
+    {
+        $this->validate($request, [
+            'name' => [
+                'required',
+                Rule::unique('permissions')->where(function ($query) use ($request) {
+                    return $query->where('guard_name', $request->guard_name);
+                }),
+            ],
+            'guard_name' => 'required',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'name.unique' => 'Nama sudah terdaftar.',
+            'guard_name.required' => 'Guard wajib diisi.',
+        ]);
 
-    Permission::create($request->all());
+        $permission = Permission::create($request->all());
 
-    return redirect()->route('permission.index')
-        ->with('success', 'Permission berhasil dibuat.');
-}
+        $loggedInUserId = Auth::id();
+        // Simpan log histori untuk operasi Create dengan user_id yang sedang login
+        $this->simpanLogHistori('Create', 'Permission', $permission->id, $loggedInUserId, null, json_encode($permission));
+        return redirect()->route('permission.index')
+            ->with('success', 'Permission berhasil dibuat.');
+    }
 
 
     /**
@@ -83,12 +109,12 @@ class PermissionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id): View
-    
+
     {
         $title = "Halaman Lihat Permission";
         $subtitle = "Menu Lihat Permission";
         $data_permission = Permission::find($id);
-        return view('permission.show', compact('data_permission','title','subtitle'));
+        return view('permission.show', compact('data_permission', 'title', 'subtitle'));
     }
 
     /**
@@ -102,7 +128,7 @@ class PermissionController extends Controller
         $title = "Halaman Edit Permission";
         $subtitle = "Menu Edit Permission";
         $data_permission = Permission::find($id);
-        return view('permission.edit', compact('data_permission','title','subtitle'));
+        return view('permission.edit', compact('data_permission', 'title', 'subtitle'));
     }
 
     /**
@@ -120,14 +146,28 @@ class PermissionController extends Controller
         ], [
             'name.required' => 'Nama wajib diisi.',
             'guard_name.required' => 'Guard wajib diisi.',
-
         ]);
 
+        // Menyimpan data lama sebelum update
+        $oldPermissionData = $permission->toArray(); // Menyimpan semua field termasuk created_at dan updated_at
+
+        // Melakukan update permission
         $permission->update($request->all());
+
+        // Mendapatkan ID pengguna yang sedang login
+        $loggedInUserId = Auth::id();
+
+        // Mendapatkan data baru setelah update
+        $newPermissionData = $permission->fresh()->toArray(); // Mengambil data terbaru setelah update
+
+        // Menyimpan log histori untuk operasi Update
+        $this->simpanLogHistori('Update', 'Permission', $permission->id, $loggedInUserId, json_encode($oldPermissionData), json_encode($newPermissionData));
 
         return redirect()->route('permission.index')
             ->with('success', 'Permission berhasil diperbaharui');
     }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -135,11 +175,14 @@ class PermissionController extends Controller
      * @param  \App\Permission  $permission
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Permission $permission): RedirectResponse
+    public function destroy($id)
     {
+        $permission = Permission::find($id);
         $permission->delete();
-
-        return redirect()->route('permission.index')
-            ->with('success', 'Permission berhasil dihapus');
+        $loggedInGaleriId = Auth::id();
+        // Simpan log histori untuk operasi Delete dengan permission_id yang sedang login dan informasi data yang dihapus
+        $this->simpanLogHistori('Delete', 'Permission', $id, $loggedInGaleriId, json_encode($permission), null);
+        // Redirect kembali dengan pesan sukses
+        return redirect()->route('permission.index')->with('success', 'Permission berhasil dihapus');
     }
 }

@@ -14,12 +14,22 @@ class LogHistoriController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     function __construct()
+     {
+         $this->middleware('permission:loghistori-list|loghistori-create|loghistori-edit|loghistori-delete', ['only' => ['index', 'store']]);
+         $this->middleware('permission:loghistori-create', ['only' => ['create', 'store']]);
+         $this->middleware('permission:loghistori-edit', ['only' => ['edit', 'update']]);
+         $this->middleware('permission:loghistori-delete', ['only' => ['destroy']]);
+     }
+
+
     public function index()
     {
         $title = "Halaman Log Histori";
         $subtitle = "Menu Log Histori";
-        $log_histori = LogHistori::orderBy('id', 'desc')->get();
-        return view('back.log_histories.index',compact('log_histori','title','subtitle'));
+        $data_log_histori = LogHistori::orderBy('id', 'desc')->get();
+        return view('log_histori',compact('data_log_histori','title','subtitle'));
     }
 
     public function deleteAll()

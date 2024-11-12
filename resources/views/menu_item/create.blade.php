@@ -20,7 +20,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('menu_item.index') }}">Halaman Role</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('menu_item.index') }}">Halaman Menu Item</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -92,13 +92,17 @@
                                             placeholder="--Pilih Permission--">
 
                                             <option></option> <!-- Placeholder option for select2 -->
-                                            <optitem label="--Pilih Permission--">
-                                                @foreach ($data_permission as $value => $label)
-                                                <option value="{{ $value }}" {{ in_array($value, old('permission_name', [])) ? 'selected' : '' }}>{{ $label }}</option>
+                                            <optgroup label="--Pilih Permission--">
+                                                @foreach ($data_permission as $id => $name)
+                                                <option value="{{ $name }}" {{ in_array($name, old('permission_name', [])) ? 'selected' : '' }}>
+                                                    {{ $name }}
+                                                </option>
                                                 @endforeach
-                                            </optitem>
+                                            </optgroup>
                                         </select>
                                     </div>
+
+
 
                                     <div class="form-item mb-3">
                                         <label for="status">Status</label>

@@ -24,6 +24,23 @@ class MenuItemController extends Controller
         $this->middleware('permission:menuitem-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:menuitem-delete', ['only' => ['destroy']]);
     }
+
+
+    public function updatePositions(Request $request)
+    {
+        $positions = $request->input('positions'); // Array ID menu item yang terurut
+        foreach ($positions as $index => $id) {
+            $menu_item = MenuItem::find($id);
+            if ($menu_item) {
+                $menu_item->position = $index + 1; // Update posisi berdasarkan index
+                $menu_item->save(); // Simpan perubahan
+            }
+        }
+    
+        return response()->json(['success' => true]);
+    }
+    
+
     /**
      * Display a listing of the resource.
      *
@@ -33,7 +50,8 @@ class MenuItemController extends Controller
     {
         $title = "Halaman Menu Item";
         $subtitle = "Menu Menu Item";
-        $data_menu_item = MenuItem::all();
+        $data_menu_item = MenuItem::orderBy('position', 'asc')->get();
+
         return view('menu_item.index', compact('data_menu_item', 'title', 'subtitle'));
     }
 
@@ -47,9 +65,10 @@ class MenuItemController extends Controller
         $title = "Halaman Tambah Menu Item";
         $subtitle = "Menu Tambah Menu Item";
         $data_menu_group = MenuGroup::pluck('name', 'id')->all();
-        $data_permission =  Permission::pluck('name', 'id')->all();
+        $data_permission = Permission::pluck('name', 'id')->all(); // Mengambil nama sebagai label dan id sebagai value
         return view('menu_item.create', compact('title', 'subtitle', 'data_permission', 'data_menu_group'));
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -78,7 +97,7 @@ class MenuItemController extends Controller
             'menu_group_id.required' => 'Menu Group wajib dipilih.',
             'menu_group_id.exists' => 'Menu Group tidak ditemukan.',
         ]);
-    
+
         // Menyimpan menu item dengan ID menu_group
         MenuItem::create([
             'name' => $request->name,
@@ -89,11 +108,11 @@ class MenuItemController extends Controller
             'position' => $request->position,
             'menu_group_id' => $request->menu_group_id, // Menyimpan ID menu_group
         ]);
-    
+
         return redirect()->route('menu_item.index')
             ->with('success', 'Menu Item berhasil dibuat.');
     }
-    
+
 
 
     /**
@@ -126,10 +145,10 @@ class MenuItemController extends Controller
         $data_menu_item = MenuItem::findOrFail($id); // Menggunakan findOrFail untuk memastikan data ditemukan
         $data_permission = Permission::pluck('name', 'name')->all();
         $data_menu_group = MenuGroup::pluck('name', 'id')->all(); // Mengambil nama dan id menu_group untuk dropdown
-        
+
         return view('menu_item.edit', compact('data_menu_item', 'title', 'subtitle', 'data_permission', 'data_menu_group'));
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -159,7 +178,7 @@ class MenuItemController extends Controller
             'menu_group_id.required' => 'Menu Group wajib dipilih.',
             'menu_group_id.exists' => 'Menu Group tidak ditemukan.',
         ]);
-    
+
         // Update menu item dengan data yang diterima
         $menu_item->update([
             'name' => $request->name,
@@ -170,12 +189,12 @@ class MenuItemController extends Controller
             'position' => $request->position,
             'menu_group_id' => $request->menu_group_id, // Menyimpan ID menu_group
         ]);
-    
+
         // Redirect ke halaman index dengan pesan sukses
         return redirect()->route('menu_item.index')
             ->with('success', 'Menu Item berhasil diperbaharui');
     }
-    
+
 
     /**
      * Remove the specified resource from storage.

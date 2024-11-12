@@ -33,9 +33,9 @@ class ProfilController extends Controller
     {
         $title = "Halaman Profil";
         $subtitle = "Menu Profil";
-        $profil = Profil::all();
+        $data_profil = Profil::all();
 
-        return view('profil.index', compact('profil', 'title', 'subtitle'));
+        return view('profil.index', compact('data_profil', 'title', 'subtitle'));
     }
 
     /**
@@ -84,13 +84,16 @@ class ProfilController extends Controller
      * @param  \App\Profil  $profil
      * @return \Illuminate\Http\Response
      */
-    public function edit(Profil $profil): View
+    public function edit(): View
     {
+        // Mengambil profil dengan ID 1
+        $profil = Profil::findOrFail(1); 
         $title = "Halaman Profil";
         $subtitle = "Menu Profil";
         return view('profil.edit', compact('profil', 'title', 'subtitle'));
     }
-
+    
+    
     /**
      * Update the specified resource in storage.
      *

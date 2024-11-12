@@ -23,6 +23,21 @@ class MenuGroupController extends Controller
         $this->middleware('permission:menugroup-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:menugroup-delete', ['only' => ['destroy']]);
     }
+
+    public function updatePositions(Request $request)
+    {
+        $positions = $request->input('positions'); // Array ID menu group yang terurut
+        foreach ($positions as $index => $id) {
+            $menu_group = MenuGroup::find($id);
+            if ($menu_group) {
+                $menu_group->position = $index + 1; // Update posisi berdasarkan index
+                $menu_group->save(); // Simpan perubahan
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,7 +47,7 @@ class MenuGroupController extends Controller
     {
         $title = "Halaman Menu Group";
         $subtitle = "Menu Menu Group";
-        $data_menu_group = MenuGroup::all();
+        $data_menu_group = MenuGroup::orderBy('position', 'asc')->get();
         return view('menu_group.index', compact('data_menu_group', 'title', 'subtitle'));
     }
 
@@ -45,8 +60,8 @@ class MenuGroupController extends Controller
     {
         $title = "Halaman Tambah Menu Group";
         $subtitle = "Menu Tambah Menu Group";
-        $data_permission =  Permission::pluck('name','name')->all();
-        return view('menu_group.create', compact('title', 'subtitle','data_permission'));
+        $data_permission =  Permission::pluck('name', 'name')->all();
+        return view('menu_group.create', compact('title', 'subtitle', 'data_permission'));
     }
 
     /**
@@ -56,27 +71,27 @@ class MenuGroupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request): RedirectResponse
-{
-   
-    $this->validate($request, [
-        'name' => 'required|unique:menu_groups,name',
-        'permission_name' => 'required',
-        'status' => 'required',
-        'position' => 'required',
-    ], [
-        'name.required' => 'Nama wajib diisi.',
-        'name.unique' => 'Nama sudah terdaftar.',
-        'permission_name.required' => 'Nama Permission wajib diisi.',
-        'status.required' => 'Status wajib diisi.',
-        'position.required' => 'Urutan wajib diisi.',
+    {
 
-    ]);
+        $this->validate($request, [
+            'name' => 'required|unique:menu_groups,name',
+            'permission_name' => 'required',
+            'status' => 'required',
+            'position' => 'required',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'name.unique' => 'Nama sudah terdaftar.',
+            'permission_name.required' => 'Nama Permission wajib diisi.',
+            'status.required' => 'Status wajib diisi.',
+            'position.required' => 'Urutan wajib diisi.',
 
-    MenuGroup::create($request->all());
+        ]);
 
-    return redirect()->route('menu_group.index')
-        ->with('success', 'Menu Group berhasil dibuat.');
-}
+        MenuGroup::create($request->all());
+
+        return redirect()->route('menu_group.index')
+            ->with('success', 'Menu Group berhasil dibuat.');
+    }
 
 
     /**
@@ -86,13 +101,13 @@ class MenuGroupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id): View
-    
+
     {
         $title = "Halaman Lihat Menu Group";
         $subtitle = "Menu Lihat Menu Group";
         $data_menu_group = MenuGroup::find($id);
-        $data_permission =  Permission::pluck('name','name')->all();
-        return view('menu_group.show', compact('data_menu_group','title','subtitle','data_permission'));
+        $data_permission =  Permission::pluck('name', 'name')->all();
+        return view('menu_group.show', compact('data_menu_group', 'title', 'subtitle', 'data_permission'));
     }
 
     /**
@@ -106,8 +121,8 @@ class MenuGroupController extends Controller
         $title = "Halaman Edit Menu Group";
         $subtitle = "Menu Edit Menu Group";
         $data_menu_group = MenuGroup::find($id);
-        $data_permission =  Permission::pluck('name','name')->all();
-        return view('menu_group.edit', compact('data_menu_group','title','subtitle','data_permission'));
+        $data_permission =  Permission::pluck('name', 'name')->all();
+        return view('menu_group.edit', compact('data_menu_group', 'title', 'subtitle', 'data_permission'));
     }
 
     /**
@@ -129,7 +144,7 @@ class MenuGroupController extends Controller
             'permission_name.required' => 'Nama Permission wajib diisi.',
             'status.required' => 'Status wajib diisi.',
             'position.required' => 'Urutan wajib diisi.',
-    
+
         ]);
 
         $menu_group->update($request->all());

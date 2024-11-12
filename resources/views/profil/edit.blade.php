@@ -14,6 +14,8 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('profil.index') }}">Halaman Profil</a></li>
+                         
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>

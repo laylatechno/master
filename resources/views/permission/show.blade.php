@@ -43,6 +43,12 @@
                                 </div>
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                     <div class="form-group">
+                                        <strong>Urutan:</strong>
+                                        {{ $data_permission->urutan }}
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                    <div class="form-group">
                                         <strong>Guard:</strong>
                                         {{ $data_permission->guard_name }}
                                     </div>

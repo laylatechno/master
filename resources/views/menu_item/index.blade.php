@@ -1,11 +1,30 @@
 @extends('layouts.app')
-@section('title', $title)
-@section('subtitle', $subtitle)
 
 @push('css')
-<link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.css" />
 @endpush
+<style>
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        /* Membuat ruang antara nama dan tombol */
+        align-items: center;
+        /* Menjaga tombol sejajar vertikal dengan teks */
+    }
 
+    .card-header .d-flex {
+        display: flex;
+    }
+
+    .card-header .ml-auto {
+        margin-left: auto;
+        /* Menempatkan elemen ke sisi kanan */
+    }
+
+    .card-footer {
+        padding: 10px;
+    }
+</style>
 
 @section('content')
 <div class="container-fluid">
@@ -29,88 +48,70 @@
             </div>
         </div>
     </div>
-    <section class="datatables">
+
+    <div class="row mb-4">
+        <div class="col-lg-12 margin-tb">
+
+            <div class="pull-right">
+                @can('menuitem-create')
+                <a class="btn btn-success mb-2" href="{{ route('menu_item.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanban -->
+    <section class="kanban">
         <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <div class="row">
-                                <div class="col-lg-12 margin-tb">
+            @foreach ($data_menu_item as $menu_item)
+            <div class="col-12 mb-4"> <!-- Menggunakan col-12 agar setiap card memakan satu baris penuh -->
+                <div class="card" data-id="{{ $menu_item->id }}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between w-100">
+                            <h5>{{ $menu_item->name }} <i class="fa {{ $menu_item->icon }} fa-1x"></i></h5> <!-- Ukuran ikon diperbesar -->
 
-                                    <div class="pull-right">
-                                        @can('role-create')
-                                        <a class="btn btn-success mb-2" href="{{ route('menu_item.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
-                                        @endcan
-                                    </div>
-                                </div>
-                            </div>
 
-                            @session('success')
-                            <div class="alert alert-success" roles="alert">
-                                {{ $value }}
-                            </div>
-                            @endsession
-                            <table id="zero_config"
-                                class="table border table-striped table-bordered text-nowrap">
-                                <thead>
-                                    <!-- start row -->
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama</th>
-                                        <th>Nama Permission</th>
-                                        <th>Status</th>
-                                        <th>Urutan</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                    <!-- end row -->
-                                </thead>
-                                <tbody>
-                                    @foreach ($data_menu_item as $p)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $p->name }}</td>
-                                        <td>{{ $p->permission_name }}</td>
-                                        <td>{{ $p->status }}</td>
-                                        <td>{{ $p->position }}</td>
-                                        <td>
-                                            <a class="btn btn-warning btn-sm" href="{{ route('menu_item.show',$p->id) }}"><i class="fa fa-eye"></i> Show</a>
-                                            @can('role-edit')
-                                            <a class="btn btn-primary btn-sm" href="{{ route('menu_item.edit',$p->id) }}"><i class="fa fa-edit"></i> Edit</a>
-                                            @endcan
+                        </div>
+                        <!-- Tombol Edit dan Hapus di sebelah kanan -->
+                        <div class="ml-auto d-flex gap-2">
+                            <a class="btn btn-sm {{ $menu_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_item.show',$menu_item->id) }}">
+                                <i class="fa {{ $menu_item->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
+                                {{ $menu_item->status }}
+                            </a>
 
-                                            @can('role-delete')
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})">
-                                                <i class="fa fa-trash"></i> Delete
-                                            </button>
-                                            <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('menu_item.destroy', $p->id) }}" style="display:none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                            @endcan
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                            @can('menuitem-edit')
+                            <a class="btn btn-primary btn-sm" href="{{ route('menu_item.edit', $menu_item->id) }}">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            @endcan
+                            @can('menuitem-delete')
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $menu_item->id }})">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                            <form id="delete-form-{{ $menu_item->id }}" method="POST" action="{{ route('menu_item.destroy', $menu_item->id) }}" style="display:none;">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            @endcan
                         </div>
                     </div>
                 </div>
             </div>
+            @endforeach
         </div>
-
-
     </section>
+
+
 
 
 </div>
 @endsection
 
-
-
 @push('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function confirmDelete(rolesId) {
+    function confirmDelete(itemId) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
             text: "Data yang dihapus tidak dapat dikembalikan!",
@@ -122,12 +123,47 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + rolesId).submit();
+                document.getElementById('delete-form-' + itemId).submit();
             }
         });
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script>
+
+<script>
+    // Inisialisasi SortableJS untuk membuat kolom menjadi dapat dipindah-pindah
+    document.addEventListener('DOMContentLoaded', function() {
+        const kanbanContainer = document.querySelector('.kanban .row');
+        new Sortable(kanbanContainer, {
+            group: 'kanban', // Menentukan grup untuk drag-and-drop antar kolom
+            animation: 150,
+            onEnd: function(evt) {
+                let sortedItems = [];
+                kanbanContainer.querySelectorAll('.card').forEach(function(card) {
+                    sortedItems.push(card.getAttribute('data-id'));
+                });
+
+                // Kirimkan data ID yang terurut ke server untuk disimpan
+                fetch("{{ route('menu_item.update_positions') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        },
+                        body: JSON.stringify({
+                            positions: sortedItems
+                        }), // Kirim posisi
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Posisi item berhasil diperbarui');
+                            location.reload();
+                        } else {
+                            alert('Terjadi kesalahan');
+                        }
+                    });
+            }
+        });
+    });
+</script>
 @endpush
