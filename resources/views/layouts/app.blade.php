@@ -62,18 +62,17 @@
 
                 <nav class="sidebar-nav scroll-sidebar" data-simplebar>
                     <ul id="sidebarnav">
-                        @foreach ($menus->sortBy('position') as $menu) <!-- Mengurutkan menu_group berdasarkan posisi -->
-                        @can($menu->permission_name) <!-- Memeriksa permission untuk grup menu -->
-                        <!-- Section judul menu -->
+                        @foreach ($menus->sortBy('position') as $menu)
+                        @can($menu->permission_name)
                         <li class="nav-small-cap">
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                             <span class="hide-menu">{{ $menu->name }}</span>
                         </li>
 
-                        @foreach ($menu->items->sortBy('position') as $item) <!-- Mengurutkan menu_items berdasarkan posisi -->
-                        @can($item->permission_name) <!-- Memeriksa permission untuk item -->
-                        @if(!empty($item->subItems)) <!-- Cek apakah menu memiliki submenu -->
+                        @foreach ($menu->items->sortBy('position') as $item)
+                        @can($item->permission_name)
                         <li class="sidebar-item">
+                            @if($item->children->isNotEmpty())
                             <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
                                 <span class="d-flex">
                                     <i class="{{ $item->icon }}"></i>
@@ -81,8 +80,8 @@
                                 <span class="hide-menu">{{ $item->name }}</span>
                             </a>
                             <ul aria-expanded="false" class="collapse first-level">
-                                @foreach (collect($item->subItems)->sortBy('position') as $subItem) <!-- Mengurutkan subItems -->
-                                @can($subItem->permission_name) <!-- Memeriksa permission untuk sub item -->
+                                @foreach ($item->children->sortBy('position') as $subItem)
+                                @can($subItem->permission_name)
                                 <li class="sidebar-item">
                                     <a href="{{ route($subItem->route) }}" class="sidebar-link">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
@@ -94,23 +93,23 @@
                                 @endcan
                                 @endforeach
                             </ul>
-                        </li>
-                        @else <!-- Jika tidak memiliki submenu -->
-                        <li class="sidebar-item">
+                            @else
                             <a class="sidebar-link {{ request()->routeIs($item->route) ? 'active' : '' }}" href="{{ route($item->route) }}" aria-expanded="false">
                                 <span>
                                     <i class="{{ $item->icon }}"></i>
                                 </span>
                                 <span class="hide-menu">{{ $item->name }}</span>
                             </a>
+                            @endif
                         </li>
-                        @endif
                         @endcan
                         @endforeach
                         @endcan
                         @endforeach
                     </ul>
                 </nav>
+
+
 
                 <!-- 
 
@@ -1557,7 +1556,18 @@
     <!-- <script src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/libs/apexcharts/dist/apexcharts.min.js"></script> -->
     <!-- <script src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/js/dashboards/dashboard.js"></script> -->
 
+<script>
+$(document).ready(function() {
+    // Pastikan kelas collapse toggle berfungsi
+    $('.sidebar-link.has-arrow').click(function() {
+        var $submenu = $(this).next('.collapse');
+        $submenu.toggleClass('show'); // Menambah atau menghapus kelas show
+        $(this).attr('aria-expanded', $submenu.hasClass('show')); // Update attribute aria-expanded
+    });
+});
 
+
+</script>
     <!-- <script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script> -->
     @stack('script')

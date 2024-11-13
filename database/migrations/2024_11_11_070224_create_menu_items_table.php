@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('route');
             $table->boolean('status')->default(true);
             $table->string('permission_name');
-            // Perbaiki kolom foreign key
-            $table->foreignId('menu_group_id')->constrained('menu_groups'); // Relasi dengan table 'menu_groups'
-            $table->integer('posision');
+            $table->foreignId('menu_group_id')->constrained('menu_groups');
+            $table->integer('position');
+            $table->foreignId('parent_id')->nullable()->constrained('menu_items'); // Relasi dengan item menu induk (parent)
             $table->timestamps();
         });
     }

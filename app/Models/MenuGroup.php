@@ -16,6 +16,6 @@ class MenuGroup extends Model
     // Relasi dengan MenuItem
     public function items()
     {
-        return $this->hasMany(MenuItem::class, 'menu_group_id');  // Pastikan nama kolom relasi sesuai dengan kolom yang ada di menu_items
+        return $this->hasMany(MenuItem::class)->where('status', 'Aktif')->whereNull('parent_id')->orderBy('position');
     }
 }

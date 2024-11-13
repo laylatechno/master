@@ -2,29 +2,59 @@
 
 @push('css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.css" />
-@endpush
 <style>
     .card-header {
         display: flex;
         justify-content: space-between;
-        /* Membuat ruang antara nama dan tombol */
         align-items: center;
-        /* Menjaga tombol sejajar vertikal dengan teks */
     }
 
-    .card-header .d-flex {
+    .submenu-item {
+        padding-left: 20px;
+        /* Memberikan indentasi untuk sub-menu */
+    }
+
+    /* Tambahkan styling untuk memastikan elemen submenu dapat dipindahkan secara horizontal */
+    .kanban .row {
         display: flex;
+        flex-wrap: wrap;
+        /* Agar elemen menu dan submenu bisa berada dalam satu baris */
     }
 
-    .card-header .ml-auto {
-        margin-left: auto;
-        /* Menempatkan elemen ke sisi kanan */
+    .submenu {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        padding-left: 0;
     }
 
-    .card-footer {
+    .submenu-item {
+        cursor: pointer;
+        padding: 5px;
+        margin: 5px 0;
+        background: #f0f0f0;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .submenu-item:hover {
+        background-color: #e0e0e0;
+    }
+
+    .card {
+        border: solid 1px #ddd;
+        margin-bottom: 10px;
         padding: 10px;
     }
+
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        /* Menambah intensitas shadow saat dihover */
+        outline: 2px solid #007bff;
+        /* Mengubah warna outline saat hover */
+    }
 </style>
+@endpush
 
 @section('content')
 <div class="container-fluid">
@@ -51,7 +81,11 @@
 
     <div class="row mb-4">
         <div class="col-lg-12 margin-tb">
-
+            @session('success')
+            <div class="alert alert-success" role="alert">
+                {{ $value }}
+            </div>
+            @endsession
             <div class="pull-right">
                 @can('menuitem-create')
                 <a class="btn btn-success mb-2" href="{{ route('menu_item.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
@@ -60,25 +94,26 @@
         </div>
     </div>
 
+
+
+
+
+
     <!-- Kanban -->
-    <section class="kanban">
+    <div class="kanban">
         <div class="row">
             @foreach ($data_menu_item as $menu_item)
-            <div class="col-12 mb-4"> <!-- Menggunakan col-12 agar setiap card memakan satu baris penuh -->
+            <div class="col-12 mb-4" data-id="{{ $menu_item->id }}" data-parent-id="{{ $menu_item->parent_id }}">
                 <div class="card" data-id="{{ $menu_item->id }}">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="d-flex justify-content-between w-100">
-                            <h5>{{ $menu_item->name }} <i class="fa {{ $menu_item->icon }} fa-1x"></i></h5> <!-- Ukuran ikon diperbesar -->
-
-
-                        </div>
-                        <!-- Tombol Edit dan Hapus di sebelah kanan -->
+                        <h5>{{ $menu_item->name }}</h5>
+                        <!-- Tombol Aktif / Nonaktif -->
                         <div class="ml-auto d-flex gap-2">
+
                             <a class="btn btn-sm {{ $menu_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_item.show',$menu_item->id) }}">
                                 <i class="fa {{ $menu_item->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
                                 {{ $menu_item->status }}
                             </a>
-
                             @can('menuitem-edit')
                             <a class="btn btn-primary btn-sm" href="{{ route('menu_item.edit', $menu_item->id) }}">
                                 <i class="fa fa-edit"></i> Edit
@@ -95,46 +130,67 @@
                             @endcan
                         </div>
                     </div>
+
+                    @if($menu_item->children->isNotEmpty())
+                    <div class="card-body">
+                        <ul class="submenu" data-id="{{ $menu_item->id }}">
+                            @foreach ($menu_item->children as $sub_item)
+                            <li class="submenu-item" data-id="{{ $sub_item->id }}" data-parent-id="{{ $menu_item->id }}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Nama submenu di sebelah kiri -->
+                                    <span>{{ $sub_item->name }}</span>
+
+                                    <!-- Tombol-tombol di sebelah kanan -->
+                                    <div class="d-flex gap-2">
+
+                                        <a class="btn btn-sm {{ $sub_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_item.show',$sub_item->id) }}">
+                                            <i class="fa {{ $sub_item->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
+                                            {{ $sub_item->status }}
+                                        </a>
+                                        @can('menuitem-edit')
+                                        <!-- Edit menu submenu dengan ID sub_item -->
+                                        <a class="btn btn-primary btn-sm" href="{{ route('menu_item.edit', $sub_item->id) }}">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        @endcan
+                                        @can('menuitem-delete')
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $sub_item->id }})">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                        <form id="delete-form-{{ $sub_item->id }}" method="POST" action="{{ route('menu_item.destroy', $sub_item->id) }}" style="display:none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        @endcan
+                                    </div>
+                                </div>
+                            </li>
+                            @endforeach
+
+                        </ul>
+                    </div>
+                    @endif
+
+
                 </div>
             </div>
             @endforeach
         </div>
-    </section>
-
-
-
+    </div>
 
 </div>
 @endsection
-
 @push('script')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function confirmDelete(itemId) {
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + itemId).submit();
-            }
-        });
-    }
-</script>
 
 <script>
-    // Inisialisasi SortableJS untuk membuat kolom menjadi dapat dipindah-pindah
     document.addEventListener('DOMContentLoaded', function() {
         const kanbanContainer = document.querySelector('.kanban .row');
+        const submenuContainers = document.querySelectorAll('.submenu');
+
+        // Membuat Sortable untuk kanban utama (menu)
         new Sortable(kanbanContainer, {
-            group: 'kanban', // Menentukan grup untuk drag-and-drop antar kolom
+            group: 'kanban', // Set group untuk menu
             animation: 150,
             onEnd: function(evt) {
                 let sortedItems = [];
@@ -142,7 +198,7 @@
                     sortedItems.push(card.getAttribute('data-id'));
                 });
 
-                // Kirimkan data ID yang terurut ke server untuk disimpan
+                // Kirimkan update hanya untuk menu utama (parent_id === null)
                 fetch("{{ route('menu_item.update_positions') }}", {
                         method: "POST",
                         headers: {
@@ -150,8 +206,9 @@
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
                         },
                         body: JSON.stringify({
-                            positions: sortedItems
-                        }), // Kirim posisi
+                            positions: sortedItems,
+                            parent_id: null // Pastikan parent_id null untuk menu utama
+                        }),
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -163,6 +220,42 @@
                         }
                     });
             }
+        });
+
+
+        // Menambahkan Sortable untuk submenu (menu child)
+        submenuContainers.forEach(submenu => {
+            new Sortable(submenu, {
+                group: 'kanban', // Set group untuk submenu
+                animation: 150,
+                onEnd: function(evt) {
+                    let sortedSubItems = [];
+                    submenu.querySelectorAll('.submenu-item').forEach(function(subItem) {
+                        sortedSubItems.push(subItem.getAttribute('data-id'));
+                    });
+
+                    fetch("{{ route('menu_item.update_positions') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                positions: sortedSubItems,
+                                parent_id: submenu.getAttribute('data-id') // Kirimkan parent ID untuk sub-menu yang baru
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Posisi sub-menu berhasil diperbarui');
+                                location.reload();
+                            } else {
+                                alert('Terjadi kesalahan');
+                            }
+                        });
+                }
+            });
         });
     });
 </script>

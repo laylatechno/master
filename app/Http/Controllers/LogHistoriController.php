@@ -39,7 +39,7 @@ class LogHistoriController extends Controller
             DB::statement('DELETE FROM log_histories');
             
             // Redirect back with a success message
-            return redirect()->route('log_histori.index')->with('success', 'All data deleted successfully.');
+            return redirect()->route('log_histori.index')->with('success', 'Semua data log histori berhasil dihapus.');
         } catch (\Exception $e) {
             // Redirect back with an error message if something goes wrong
             return redirect()->route('log_histori.index')->with('error', 'Failed to delete data. Please try again.');

@@ -81,8 +81,16 @@
                                     </div>
                                     <div class="form-item mb-3">
                                         <label for="route">Route</label>
-                                        <input type="text" name="route" class="form-control" id="route" required>
+                                        <select name="route" class="select2 form-control" id="route" required>
+                                            <option></option> <!-- Placeholder option for select2 -->
+                                            @foreach ($data_routes as $route)
+                                            <option value="{{ $route }}" {{ old('route') == $route ? 'selected' : '' }}>
+                                                {{ $route }}
+                                            </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+
                                     <div class="form-item mb-3">
                                         <label for="permission_name">Permission</label>
                                         <select
@@ -115,6 +123,18 @@
                                     <div class="form-item mb-3">
                                         <label for="position">Urutan</label>
                                         <input type="number" name="position" class="form-control" id="position" required>
+                                    </div>
+
+                                    <div class="form-item mb-3">
+                                        <label for="parent_id">Parent Menu</label>
+                                        <select name="parent_id" class="select2 form-control" style="height: 36px; width: 100%">
+                                            <option value="">-- Pilih Parent Menu --</option>
+                                            @foreach ($data_menu_items as $id => $name)
+                                            <option value="{{ $id }}" {{ old('parent_id') == $id ? 'selected' : '' }}>
+                                                {{ $name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
                                     <div class="col-xs-12 col-sm-12 col-md-12 mt-3">

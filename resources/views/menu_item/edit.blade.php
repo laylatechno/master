@@ -34,14 +34,14 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             @if (count($errors) > 0)
-                                <div class="alert alert-danger">
-                                    <strong>Whoops!</strong> Ada beberapa masalah dengan data yang anda masukkan.<br><br>
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
+                            <div class="alert alert-danger">
+                                <strong>Whoops!</strong> Ada beberapa masalah dengan data yang anda masukkan.<br><br>
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                             @endif
 
                             <form method="POST" action="{{ route('menu_item.update', $data_menu_item->id) }}">
@@ -54,9 +54,9 @@
                                     <select name="menu_group_id" class="select2 form-control" style="height: 36px; width: 100%" required>
                                         <option></option>
                                         @foreach ($data_menu_group as $id => $name)
-                                            <option value="{{ $id }}" {{ $data_menu_item->menu_group_id == $id ? 'selected' : '' }}>
-                                                {{ $name }}
-                                            </option>
+                                        <option value="{{ $id }}" {{ $data_menu_item->menu_group_id == $id ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -72,10 +72,19 @@
                                     <label for="icon">Ikon</label>
                                     <input type="text" name="icon" class="form-control" id="icon" value="{{ $data_menu_item->icon }}" required>
                                 </div>
+                                <!-- Route Field -->
                                 <div class="form-item mb-3">
-                                        <label for="route">Route</label>
-                                        <input type="text" name="route" class="form-control" id="route" value="{{ $data_menu_item->route }}" required>
-                                    </div>
+                                    <label for="route">Route</label>
+                                    <select name="route" class="select2 form-control" id="route" required>
+                                        <option></option>
+                                        @foreach ($data_routes as $routeName => $routeLabel)
+                                        <option value="{{ $routeName }}" {{ $data_menu_item->route == $routeName ? 'selected' : '' }}>
+                                            {{ $routeLabel }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
 
                                 <!-- Permission Field -->
                                 <div class="form-item mb-3">
@@ -83,9 +92,9 @@
                                     <select name="permission_name" class="select2 form-control" style="height: 36px; width: 100%" required>
                                         <option></option>
                                         @foreach ($data_permission as $value => $label)
-                                            <option value="{{ $value }}" {{ $data_menu_item->permission_name == $value ? 'selected' : '' }}>
-                                                {{ $label }}
-                                            </option>
+                                        <option value="{{ $value }}" {{ $data_menu_item->permission_name == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -103,6 +112,18 @@
                                 <div class="form-item mb-3">
                                     <label for="position">Urutan</label>
                                     <input type="number" name="position" class="form-control" id="position" value="{{ $data_menu_item->position }}" required>
+                                </div>
+
+                                <div class="form-item mb-3">
+                                    <label for="parent_id">Parent Menu</label>
+                                    <select name="parent_id" class="select2 form-control" style="height: 36px; width: 100%">
+                                        <option value="">-- Pilih Parent Menu --</option>
+                                        @foreach ($data_menu_items as $id => $name)
+                                        <option value="{{ $id }}" {{ $data_menu_item->parent_id == $id ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
                                 <!-- Buttons -->

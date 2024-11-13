@@ -4,6 +4,22 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.css" />
 @endpush
 <style>
+    .card {
+        outline: 2px solid #ccc;
+        /* Menambahkan outline dengan warna abu-abu */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        /* Menambahkan shadow hitam */
+        transition: all 0.3s ease-in-out;
+        /* Transisi halus saat hover */
+    }
+
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        /* Menambah intensitas shadow saat dihover */
+        outline: 2px solid #007bff;
+        /* Mengubah warna outline saat hover */
+    }
+
     .card-header {
         display: flex;
         justify-content: space-between;
@@ -50,7 +66,11 @@
     </div>
     <div class="row mb-4">
         <div class="col-lg-12 margin-tb">
-
+            @session('success')
+            <div class="alert alert-success" role="alert">
+                {{ $value }}
+            </div>
+            @endsession
             <div class="pull-right">
                 @can('menugroup-create')
                 <a class="btn btn-success mb-2" href="{{ route('menu_group.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
@@ -68,31 +88,31 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="d-flex justify-content-between w-100">
                             <h5>{{ $menu_group->name }}</h5> <!-- Ukuran ikon diperbesar -->
+                            <!-- Tombol Edit dan Hapus di sebelah kanan -->
+                            <div class="ml-auto d-flex gap-2">
+                                <a class="btn btn-sm {{ $menu_group->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_group.show',$menu_group->id) }}">
+                                    <i class="fa {{ $menu_group->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
+                                    {{ $menu_group->status }}
+                                </a>
 
+                                @can('menugroup-edit')
+                                <a class="btn btn-primary btn-sm" href="{{ route('menu_group.edit', $menu_group->id) }}">
+                                    <i class="fa fa-edit"></i> Edit
+                                </a>
+                                @endcan
+                                @can('menugroup-delete')
+                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $menu_group->id }})">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                                <form id="delete-form-{{ $menu_group->id }}" method="POST" action="{{ route('menu_group.destroy', $menu_group->id) }}" style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                                @endcan
+                            </div>
 
                         </div>
-                        <!-- Tombol Edit dan Hapus di sebelah kanan -->
-                        <div class="ml-auto d-flex gap-2">
-                            <a class="btn btn-sm {{ $menu_group->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_group.show',$menu_group->id) }}">
-                                <i class="fa {{ $menu_group->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
-                                {{ $menu_group->status }}
-                            </a>
 
-                            @can('menugroup-edit')
-                            <a class="btn btn-primary btn-sm" href="{{ route('menu_group.edit', $menu_group->id) }}">
-                                <i class="fa fa-edit"></i> Edit
-                            </a>
-                            @endcan
-                            @can('menugroup-delete')
-                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $menu_group->id }})">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
-                            <form id="delete-form-{{ $menu_group->id }}" method="POST" action="{{ route('menu_group.destroy', $menu_group->id) }}" style="display:none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                            @endcan
-                        </div>
                     </div>
                 </div>
             </div>

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogHistori;
 use App\Models\MenuGroup;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class MenuGroupController extends Controller
@@ -22,6 +24,19 @@ class MenuGroupController extends Controller
         $this->middleware('permission:menugroup-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:menugroup-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:menugroup-delete', ['only' => ['destroy']]);
+    }
+
+    private function simpanLogHistori($aksi, $tabelAsal, $idEntitas, $pengguna, $dataLama, $dataBaru)
+    {
+        $log = new LogHistori();
+        $log->tabel_asal = $tabelAsal;
+        $log->id_entitas = $idEntitas;
+        $log->aksi = $aksi;
+        $log->waktu = now();
+        $log->pengguna = $pengguna;
+        $log->data_lama = $dataLama;
+        $log->data_baru = $dataBaru;
+        $log->save();
     }
 
     public function updatePositions(Request $request)
@@ -72,7 +87,6 @@ class MenuGroupController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-
         $this->validate($request, [
             'name' => 'required|unique:menu_groups,name',
             'permission_name' => 'required',
@@ -84,14 +98,22 @@ class MenuGroupController extends Controller
             'permission_name.required' => 'Nama Permission wajib diisi.',
             'status.required' => 'Status wajib diisi.',
             'position.required' => 'Urutan wajib diisi.',
-
         ]);
-
-        MenuGroup::create($request->all());
-
+    
+        // Menyimpan data baru ke database
+        $menuGroup = MenuGroup::create($request->all());
+    
+        // Mendapatkan ID pengguna yang sedang login
+        $loggedInUserId = Auth::id();
+    
+        // Menyimpan log histori
+        $newMenuGroupData = $menuGroup->toArray(); // Data baru yang disimpan
+        $this->simpanLogHistori('Create', 'MenuGroup', $menuGroup->id, $loggedInUserId, null, json_encode($newMenuGroupData));
+    
         return redirect()->route('menu_group.index')
             ->with('success', 'Menu Group berhasil dibuat.');
     }
+    
 
 
     /**
@@ -144,14 +166,25 @@ class MenuGroupController extends Controller
             'permission_name.required' => 'Nama Permission wajib diisi.',
             'status.required' => 'Status wajib diisi.',
             'position.required' => 'Urutan wajib diisi.',
-
         ]);
-
+    
+        // Menyimpan data lama sebelum update
+        $oldMenuGroupData = $menu_group->toArray();
+    
+        // Melakukan update pada data MenuGroup
         $menu_group->update($request->all());
-
+    
+        // Mendapatkan ID pengguna yang sedang login
+        $loggedInUserId = Auth::id();
+    
+        // Data log untuk penyimpanan
+        $newMenuGroupData = $menu_group->toArray(); // Data baru setelah diperbarui
+        $this->simpanLogHistori('Update', 'Menu Group', $menu_group->id, $loggedInUserId, json_encode($oldMenuGroupData), json_encode($newMenuGroupData));
+    
         return redirect()->route('menu_group.index')
             ->with('success', 'Menu Group berhasil diperbaharui');
     }
+    
 
     /**
      * Remove the specified resource from storage.
@@ -159,11 +192,14 @@ class MenuGroupController extends Controller
      * @param  \App\MenuGroup  $menu_group
      * @return \Illuminate\Http\Response
      */
-    public function destroy(MenuGroup $menu_group): RedirectResponse
+   public function destroy($id)
     {
+        $menu_group = MenuGroup::find($id);
         $menu_group->delete();
-
-        return redirect()->route('menu_group.index')
-            ->with('success', 'Menu Group berhasil dihapus');
+        $loggedInMenuGroupId = Auth::id();
+        // Simpan log histori untuk operasi Delete dengan menu_group_id yang sedang login dan informasi data yang dihapus
+        $this->simpanLogHistori('Delete', 'Menu Group', $id, $loggedInMenuGroupId, json_encode($menu_group), null);
+        // Redirect kembali dengan pesan sukses
+        return redirect()->route('menu_group.index')->with('success', 'Menu Group berhasil dihapus');
     }
 }

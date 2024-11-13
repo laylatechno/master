@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogHistori;
 use App\Models\MenuGroup;
 use App\Models\MenuItem;
 use App\Models\Permission;
+use App\Models\Route;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class MenuItemController extends Controller
 {
@@ -25,20 +27,48 @@ class MenuItemController extends Controller
         $this->middleware('permission:menuitem-delete', ['only' => ['destroy']]);
     }
 
+    private function simpanLogHistori($aksi, $tabelAsal, $idEntitas, $pengguna, $dataLama, $dataBaru)
+    {
+        $log = new LogHistori();
+        $log->tabel_asal = $tabelAsal;
+        $log->id_entitas = $idEntitas;
+        $log->aksi = $aksi;
+        $log->waktu = now();
+        $log->pengguna = $pengguna;
+        $log->data_lama = $dataLama;
+        $log->data_baru = $dataBaru;
+        $log->save();
+    }
 
     public function updatePositions(Request $request)
     {
-        $positions = $request->input('positions'); // Array ID menu item yang terurut
-        foreach ($positions as $index => $id) {
-            $menu_item = MenuItem::find($id);
+        $positions = $request->input('positions'); // ID menu yang telah diurutkan
+        $parentId = $request->input('parent_id'); // ID parent (submenu)
+    
+        // Perbarui posisi untuk item menu yang diurutkan
+        foreach ($positions as $index => $itemId) {
+            $menu_item = MenuItem::find($itemId);
+    
             if ($menu_item) {
-                $menu_item->position = $index + 1; // Update posisi berdasarkan index
-                $menu_item->save(); // Simpan perubahan
+                if ($menu_item->parent_id === null) { // Menu utama
+                    // Perbarui posisi untuk menu utama
+                    $menu_item->position = $index + 1;
+                    $menu_item->save();
+                } elseif ($menu_item->parent_id == $parentId) { // Submenu
+                    // Perbarui posisi untuk submenu
+                    $menu_item->position = $index + 1;
+                    $menu_item->save();
+                }
             }
         }
     
         return response()->json(['success' => true]);
     }
+    
+    
+    
+    
+    
     
 
     /**
@@ -65,9 +95,15 @@ class MenuItemController extends Controller
         $title = "Halaman Tambah Menu Item";
         $subtitle = "Menu Tambah Menu Item";
         $data_menu_group = MenuGroup::pluck('name', 'id')->all();
-        $data_permission = Permission::pluck('name', 'id')->all(); // Mengambil nama sebagai label dan id sebagai value
-        return view('menu_item.create', compact('title', 'subtitle', 'data_permission', 'data_menu_group'));
+        $data_permission = Permission::pluck('name', 'id')->all();
+        $data_menu_items = MenuItem::where('status', 'Aktif')->pluck('name', 'id')->all();
+        
+        // Ambil data routes berdasarkan nama
+        $data_routes = Route::pluck('name', 'name')->all();
+    
+        return view('menu_item.create', compact('title', 'subtitle', 'data_permission', 'data_menu_group', 'data_menu_items', 'data_routes'));
     }
+    
 
 
     /**
@@ -84,8 +120,9 @@ class MenuItemController extends Controller
             'status' => 'required',
             'icon' => 'required',
             'route' => 'required',
-            'position' => 'required',
-            'menu_group_id' => 'required|exists:menu_groups,id', // Validasi ID menu_group
+            'position' => 'required|integer',
+            'menu_group_id' => 'required|exists:menu_groups,id',
+            'parent_id' => 'nullable|exists:menu_items,id', // Validasi parent_id bisa null atau harus ID yang valid di menu_items
         ], [
             'name.required' => 'Nama wajib diisi.',
             'icon.required' => 'Icon wajib diisi.',
@@ -96,22 +133,28 @@ class MenuItemController extends Controller
             'position.required' => 'Urutan wajib diisi.',
             'menu_group_id.required' => 'Menu Group wajib dipilih.',
             'menu_group_id.exists' => 'Menu Group tidak ditemukan.',
+            'parent_id.exists' => 'Parent Menu tidak valid.',
         ]);
 
-        // Menyimpan menu item dengan ID menu_group
-        MenuItem::create([
+        $newMenuItem = MenuItem::create([
             'name' => $request->name,
             'icon' => $request->icon,
             'route' => $request->route,
             'permission_name' => $request->permission_name,
             'status' => $request->status,
             'position' => $request->position,
-            'menu_group_id' => $request->menu_group_id, // Menyimpan ID menu_group
+            'menu_group_id' => $request->menu_group_id,
+            'parent_id' => $request->parent_id, // Menyimpan ID parent
         ]);
+
+        $loggedInUserId = Auth::id();
+        $this->simpanLogHistori('Create', 'Menu Item', $newMenuItem->id, $loggedInUserId, null, json_encode($newMenuItem->toArray()));
 
         return redirect()->route('menu_item.index')
             ->with('success', 'Menu Item berhasil dibuat.');
     }
+
+
 
 
 
@@ -142,12 +185,16 @@ class MenuItemController extends Controller
     {
         $title = "Halaman Edit Menu Item";
         $subtitle = "Menu Edit Menu Item";
-        $data_menu_item = MenuItem::findOrFail($id); // Menggunakan findOrFail untuk memastikan data ditemukan
+        $data_menu_item = MenuItem::findOrFail($id); // Data menu item yang sedang diedit
         $data_permission = Permission::pluck('name', 'name')->all();
-        $data_menu_group = MenuGroup::pluck('name', 'id')->all(); // Mengambil nama dan id menu_group untuk dropdown
-
-        return view('menu_item.edit', compact('data_menu_item', 'title', 'subtitle', 'data_permission', 'data_menu_group'));
+        $data_menu_group = MenuGroup::pluck('name', 'id')->all();
+        $data_menu_items = MenuItem::where('id', '!=', $id)->pluck('name', 'id')->all(); // Mengambil semua menu item kecuali item yang sedang diedit
+        $data_routes = Route::pluck('name', 'name')->all(); // Mengambil semua route dari tabel 'routes'
+    
+        return view('menu_item.edit', compact('data_menu_item', 'title', 'subtitle', 'data_permission', 'data_menu_group', 'data_menu_items', 'data_routes'));
     }
+    
+
 
     /**
      * Update the specified resource in storage.
@@ -158,15 +205,15 @@ class MenuItemController extends Controller
      */
     public function update(Request $request, MenuItem $menu_item): RedirectResponse
     {
-        // Validasi data yang diterima
         $this->validate($request, [
-            'name' => 'required|unique:menu_items,name,' . $menu_item->id, // Pastikan nama unik kecuali untuk menu yang sedang diupdate
+            'name' => 'required|unique:menu_items,name,' . $menu_item->id,
             'permission_name' => 'required',
             'status' => 'required',
             'icon' => 'required',
             'route' => 'required',
-            'position' => 'required|integer',  // Validasi untuk urutan
-            'menu_group_id' => 'required|exists:menu_groups,id', // Validasi ID menu_group
+            'position' => 'required|integer',
+            'menu_group_id' => 'required|exists:menu_groups,id',
+            'parent_id' => 'nullable|exists:menu_items,id', // Validasi parent_id bisa null atau ID yang valid di menu_items
         ], [
             'name.required' => 'Nama wajib diisi.',
             'icon.required' => 'Icon wajib diisi.',
@@ -177,9 +224,11 @@ class MenuItemController extends Controller
             'position.required' => 'Urutan wajib diisi.',
             'menu_group_id.required' => 'Menu Group wajib dipilih.',
             'menu_group_id.exists' => 'Menu Group tidak ditemukan.',
+            'parent_id.exists' => 'Parent Menu tidak valid.',
         ]);
 
-        // Update menu item dengan data yang diterima
+        $oldMenuItemData = $menu_item->toArray();
+
         $menu_item->update([
             'name' => $request->name,
             'icon' => $request->icon,
@@ -187,13 +236,24 @@ class MenuItemController extends Controller
             'permission_name' => $request->permission_name,
             'status' => $request->status,
             'position' => $request->position,
-            'menu_group_id' => $request->menu_group_id, // Menyimpan ID menu_group
+            'menu_group_id' => $request->menu_group_id,
+            'parent_id' => $request->parent_id, // Menyimpan ID parent
         ]);
 
-        // Redirect ke halaman index dengan pesan sukses
+        $loggedInUserId = Auth::id();
+        $this->simpanLogHistori(
+            'Update',
+            'Menu Item',
+            $menu_item->id,
+            $loggedInUserId,
+            json_encode($oldMenuItemData),
+            json_encode($menu_item->toArray())
+        );
+
         return redirect()->route('menu_item.index')
             ->with('success', 'Menu Item berhasil diperbaharui');
     }
+
 
 
     /**
@@ -202,11 +262,14 @@ class MenuItemController extends Controller
      * @param  \App\MenuItem  $menu_item
      * @return \Illuminate\Http\Response
      */
-    public function destroy(MenuItem $menu_item): RedirectResponse
+    public function destroy($id)
     {
+        $menu_item = MenuItem::find($id);
         $menu_item->delete();
-
-        return redirect()->route('menu_item.index')
-            ->with('success', 'Menu Item berhasil dihapus');
+        $loggedInMenuItemId = Auth::id();
+        // Simpan log histori untuk operasi Delete dengan menu_item_id yang sedang login dan informasi data yang dihapus
+        $this->simpanLogHistori('Delete', 'Menu Item', $id, $loggedInMenuItemId, json_encode($menu_item), null);
+        // Redirect kembali dengan pesan sukses
+        return redirect()->route('menu_item.index')->with('success', 'Menu Item berhasil dihapus');
     }
 }

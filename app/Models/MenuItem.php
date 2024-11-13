@@ -11,11 +11,24 @@ class MenuItem extends Model
 
     protected $table = 'menu_items';
     protected $guarded = [];
- 
 
-    // Relasi balik ke MenuGroup
+    // Relasi ke MenuGroup
     public function group()
     {
         return $this->belongsTo(MenuGroup::class, 'menu_group_id');
+    }
+
+    // Relasi untuk sub-menu
+
+    public function children()
+    {
+        return $this->hasMany(MenuItem::class, 'parent_id')->where('status', 'Aktif')->orderBy('position');
+    }
+
+
+    // Relasi untuk menu induk
+    public function parent()
+    {
+        return $this->belongsTo(MenuItem::class, 'parent_id');
     }
 }
