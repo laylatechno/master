@@ -23,8 +23,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $title = "Halaman Profil";
-        $subtitle = "Menu Profil";
+        $title = "Halaman Dashboard";
+        $subtitle = "Menu Dashboard";
         return view('home', compact('title','subtitle'));
     }
 }
