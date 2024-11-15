@@ -4,12 +4,9 @@
 <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
 @endpush
 
-
 @section('content')
 <div class="container-fluid">
-
-
-
+    <!-- Breadcrumb Section -->
     <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
@@ -22,42 +19,39 @@
                         </ol>
                     </nav>
                 </div>
-                <div class="col-3">
-                    <div class="text-center mb-n5">
-                        <img src="{{ asset('template/back') }}/dist/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4">
-                    </div>
+                <div class="col-3 text-center mb-n5">
+                    <img src="{{ asset('template/back') }}/dist/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4">
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- DataTables Section -->
     <section class="datatables">
-        <!-- basic table -->
         <div class="row">
             <div class="col-12">
-
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <div class="row">
-                                <div class="col-lg-12 margin-tb">
-
-                                    <div class="pull-right">
-                                        @can('user-create')
-                                        <a class="btn btn-success mb-2" href="{{ route('users.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
-                                        @endcan
-                                    </div>
-                                </div>
+                            <!-- Button Tambah Data -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                @can('user-create')
+                                <a class="btn btn-success mb-2" href="{{ route('users.create') }}">
+                                    <i class="fa fa-plus"></i> Tambah Data
+                                </a>
+                                @endcan
                             </div>
 
-                            @session('success')
+                            <!-- Alert Success -->
+                            @if(session('success'))
                             <div class="alert alert-success" role="alert">
-                                {{ $value }}
+                                {{ session('success') }}
                             </div>
-                            @endsession
-                            <table id="zero_config"
-                                class="table border table-striped table-bordered text-nowrap">
+                            @endif
+
+                            <!-- Data Table -->
+                            <table id="zero_config" class="table border table-striped table-bordered text-nowrap">
                                 <thead>
-                                    <!-- start row -->
                                     <tr>
                                         <th>No</th>
                                         <th>Nama</th>
@@ -65,38 +59,42 @@
                                         <th>Roles</th>
                                         <th width="280px">Action</th>
                                     </tr>
-                                    <!-- end row -->
                                 </thead>
                                 <tbody>
-                                    @foreach ($data_user as $p)
+                                    @foreach ($data_user as $user)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $p->name }}</td>
-                                        <td>{{ $p->email }}</td>
+                                        <td>{{ $user->name }}</td>
+                                        <td>{{ $user->email }}</td>
                                         <td>
-                                            @if(!empty($p->getRoleNames()))
-                                            @foreach($p->getRoleNames() as $v)
-                                            <label class="badge bg-success">{{ $v }}</label>
+                                            @foreach($user->getRoleNames() as $role)
+                                            <label class="badge bg-success">{{ $role }}</label>
                                             @endforeach
-                                            @endif
                                         </td>
                                         <td>
-                                            <a class="btn btn-warning btn-sm" href="{{ route('users.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
+                                            <!-- Show Button -->
+                                            <a class="btn btn-warning btn-sm" href="{{ route('users.show', $user->id) }}">
+                                                <i class="fa fa-eye"></i> Show
+                                            </a>
+
+                                            <!-- Edit Button -->
                                             @can('user-edit')
-                                            <a class="btn btn-primary btn-sm" href="{{ route('users.edit', $p->id) }}"><i class="fa fa-edit"></i> Edit</a>
+                                            <a class="btn btn-primary btn-sm" href="{{ route('users.edit', $user->id) }}">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </a>
                                             @endcan
 
+                                            <!-- Delete Button -->
                                             @can('user-delete')
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $user->id }})">
                                                 <i class="fa fa-trash"></i> Delete
                                             </button>
-                                            <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('users.destroy', $p->id) }}" style="display:none;">
+                                            <form id="delete-form-{{ $user->id }}" method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:none;">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>
                                             @endcan
                                         </td>
-
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -104,20 +102,19 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-
-
     </section>
-
-
 </div>
 @endsection
 
 @push('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script>
+
 <script>
-    function confirmDelete(usersId) {
+    function confirmDelete(userId) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
             text: "Data yang dihapus tidak dapat dikembalikan!",
@@ -129,16 +126,9 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + usersId).submit();
+                document.getElementById('delete-form-' + userId).submit();
             }
         });
     }
 </script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script>
 @endpush

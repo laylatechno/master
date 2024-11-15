@@ -78,5 +78,6 @@ class DatabaseSeeder extends Seeder
             'menu_group_id' => $settingsGroup->id,
             'posision' => 2,
         ]);
+        $this->call(ProfilTableSeeder::class);
     }
 }

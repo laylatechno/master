@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kategori_blog', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_kategori_berita');
-            $table->text('deskripsi')->nullable();
-            $table->string('urutan')->nullable();
+        Schema::create('roles', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('guard_name');
             $table->timestamps();
+
+            $table->unique(['name', 'guard_name']);
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kategori_blog');
+        Schema::dropIfExists('roles');
     }
 };

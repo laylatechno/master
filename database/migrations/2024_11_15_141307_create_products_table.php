@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('menu_items', function (Blueprint $table) {
-            $table->foreignId('parent_id')->nullable()->after('position')->constrained('menu_items')->nullOnDelete();
+        Schema::create('products', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->text('detail');
+            $table->timestamps();
         });
     }
 
@@ -21,9 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('menu_items', function (Blueprint $table) {
-            $table->dropForeign(['parent_id']);
-            $table->dropColumn('parent_id');
-        });
+        Schema::dropIfExists('products');
     }
 };

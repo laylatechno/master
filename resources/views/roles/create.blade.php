@@ -1,9 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-
 <div class="container-fluid">
-
 
     <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
@@ -26,22 +24,23 @@
             </div>
         </div>
     </div>
+
     <section class="datatables">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-
+                            
                             @if (count($errors) > 0)
-                            <div class="alert alert-danger">
-                                <strong>Whoops!</strong> Ada beberapa masalah dengan data yang anda masukkan.<br><br>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                                <div class="alert alert-danger">
+                                    <strong>Whoops!</strong> Ada beberapa masalah dengan data yang anda masukkan.<br><br>
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             @endif
 
                             <form method="POST" action="{{ route('roles.store') }}">
@@ -53,21 +52,20 @@
                                             <input type="text" name="name" placeholder="Nama" class="form-control" value="{{ old('name') }}">
                                         </div>
                                     </div>
+
                                     <div class="col-xs-12 col-sm-12 col-md-12">
                                         <div class="form-group">
                                             <strong>Permission:</strong>
                                             <br />
 
-
-
                                             @php
-                                            $groupedPermissions = [];
+                                                $groupedPermissions = [];
 
-                                            // Mengelompokkan permissions berdasarkan kata pertama
-                                            foreach ($permission as $value) {
-                                            $category = explode('-', $value->name)[0]; // Mengambil kata pertama dari 'name'
-                                            $groupedPermissions[$category][] = $value;
-                                            }
+                                                // Mengelompokkan permissions berdasarkan kata pertama
+                                                foreach ($permission as $value) {
+                                                    $category = explode('-', $value->name)[0]; // Mengambil kata pertama dari 'name'
+                                                    $groupedPermissions[$category][] = $value;
+                                                }
                                             @endphp
 
                                             <!-- Checkbox Check All Global -->
@@ -76,68 +74,60 @@
                                             </label>
 
                                             @foreach($groupedPermissions as $category => $permissions)
-                                            <h3>{{ ucfirst($category) }}</h3> <!-- Menampilkan judul kategori -->
-                                            <!-- Checkbox Check All per Kategori -->
-                                            <label style="display: inline-block; margin-right: 15px;">
-                                                <input type="checkbox" class="check-all" data-category="{{ $category }}"> Check All in {{ ucfirst($category) }}
-                                            </label>
-                                            <div style="display: flex; flex-wrap: wrap;" class="permission-group-{{ $category }}"> <!-- Membungkus dengan flexbox untuk pengaturan horizontal -->
-                                                @foreach($permissions as $value)
+                                                <h3>{{ ucfirst($category) }}</h3> <!-- Menampilkan judul kategori -->
+                                                
+                                                <!-- Checkbox Check All per Kategori -->
                                                 <label style="display: inline-block; margin-right: 15px;">
-                                                    <input type="checkbox" name="permission[{{ $value->id }}]" value="{{ $value->id }}" class="name permission-checkbox permission-{{ $category }}"
-                                                        {{ old("permission.{$value->id}") ? 'checked' : '' }}>
-                                                    {{ $value->name }}
+                                                    <input type="checkbox" class="check-all" data-category="{{ $category }}"> Check All in {{ ucfirst($category) }}
                                                 </label>
-                                                @endforeach
-                                            </div>
-                                            <br />
+                                                <div style="display: flex; flex-wrap: wrap;" class="permission-group-{{ $category }}">
+                                                    @foreach($permissions as $value)
+                                                        <label style="display: inline-block; margin-right: 15px;">
+                                                            <input type="checkbox" name="permission[{{ $value->id }}]" value="{{ $value->id }}" class="name permission-checkbox permission-{{ $category }}"
+                                                                {{ old("permission.{$value->id}") ? 'checked' : '' }}>
+                                                            {{ $value->name }}
+                                                        </label>
+                                                    @endforeach
+                                                </div>
+                                                <br />
                                             @endforeach
 
                                             <script>
-                                                // Check All Global untuk semua kategori
                                                 document.getElementById('check-all-global').addEventListener('change', function() {
                                                     const allCheckboxes = document.querySelectorAll('.permission-checkbox');
                                                     allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
 
-                                                    // Sinkronisasi dengan setiap "Check All" per kategori
                                                     document.querySelectorAll('.check-all').forEach(checkAll => checkAll.checked = this.checked);
                                                 });
 
-                                                // Check All per Kategori
                                                 document.querySelectorAll('.check-all').forEach(checkAll => {
                                                     checkAll.addEventListener('change', function() {
                                                         const category = this.getAttribute('data-category');
                                                         const checkboxes = document.querySelectorAll(`.permission-${category}`);
                                                         checkboxes.forEach(checkbox => checkbox.checked = this.checked);
 
-                                                        // Cek apakah semua "Check All" per kategori dicentang untuk mengaktifkan "Check All Global"
                                                         const allCategoryCheckAll = document.querySelectorAll('.check-all');
                                                         document.getElementById('check-all-global').checked = Array.from(allCategoryCheckAll).every(el => el.checked);
                                                     });
                                                 });
 
-                                                // Sinkronisasi Global Checkbox ketika satu atau lebih checkbox dalam kategori diubah
                                                 document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
                                                     checkbox.addEventListener('change', function() {
                                                         const category = this.classList[1].split('-')[1];
                                                         const categoryCheckboxes = document.querySelectorAll(`.permission-${category}`);
                                                         const checkAllCategory = document.querySelector(`.check-all[data-category="${category}"]`);
 
-                                                        // Update status "Check All" per kategori
                                                         checkAllCategory.checked = Array.from(categoryCheckboxes).every(cb => cb.checked);
 
-                                                        // Update status "Check All Global"
                                                         const allCheckboxes = document.querySelectorAll('.permission-checkbox');
                                                         document.getElementById('check-all-global').checked = Array.from(allCheckboxes).every(cb => cb.checked);
                                                     });
                                                 });
                                             </script>
 
-
-
-
                                         </div>
                                     </div>
+
                                     <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
                                         <button type="submit" class="btn btn-primary btn-sm mb-3"><i class="fa fa-save"></i> Simpan</button>
                                         <a class="btn btn-warning btn-sm mb-3" href="{{ route('roles.index') }}"><i class="fa fa-undo"></i> Kembali</a>
@@ -145,21 +135,11 @@
                                 </div>
                             </form>
 
-
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-
-
     </section>
-
-
 </div>
 @endsection
-
-@push('script')
-
-@endpush

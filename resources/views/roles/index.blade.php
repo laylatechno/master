@@ -3,9 +3,8 @@
 @section('subtitle', $subtitle)
 
 @push('css')
-<link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{{ asset('template/back/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}">
 @endpush
-
 
 @section('content')
 <div class="container-fluid">
@@ -21,14 +20,13 @@
                         </ol>
                     </nav>
                 </div>
-                <div class="col-3">
-                    <div class="text-center mb-n5">
-                        <img src="{{ asset('template/back') }}/dist/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4">
-                    </div>
+                <div class="col-3 text-center mb-n5">
+                    <img src="{{ asset('template/back/dist/images/breadcrumb/ChatBc.png') }}" alt="" class="img-fluid mb-n4">
                 </div>
             </div>
         </div>
     </div>
+
     <section class="datatables">
         <div class="row">
             <div class="col-12">
@@ -37,47 +35,39 @@
                         <div class="table-responsive">
                             <div class="row">
                                 <div class="col-lg-12 margin-tb">
-
+                                    @can('role-create')
                                     <div class="pull-right">
-                                        @can('role-create')
                                         <a class="btn btn-success mb-2" href="{{ route('roles.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
-                                        @endcan
                                     </div>
+                                    @endcan
                                 </div>
                             </div>
 
-                            @session('success')
-                            <div class="alert alert-success" roles="alert">
-                                {{ $value }}
-                            </div>
-                            @endsession
-                            <table id="zero_config"
-                                class="table border table-striped table-bordered text-nowrap">
+                            @if(session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+
+                            <table id="zero_config" class="table border table-striped table-bordered text-nowrap">
                                 <thead>
-                                    <!-- start row -->
                                     <tr>
                                         <th width="100px">No</th>
                                         <th>Nama</th>
                                         <th width="280px">Action</th>
                                     </tr>
-                                    <!-- end row -->
                                 </thead>
                                 <tbody>
-                                    @foreach ($data_role as $p)
+                                    @foreach ($data_role as $role)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $p->name }}</td>
+                                        <td>{{ $role->name }}</td>
                                         <td>
-                                            <a class="btn btn-warning btn-sm" href="{{ route('roles.show',$p->id) }}"><i class="fa fa-eye"></i> Show</a>
+                                            <a class="btn btn-warning btn-sm" href="{{ route('roles.show', $role->id) }}"><i class="fa fa-eye"></i> Show</a>
                                             @can('role-edit')
-                                            <a class="btn btn-primary btn-sm" href="{{ route('roles.edit',$p->id) }}"><i class="fa fa-edit"></i> Edit</a>
+                                            <a class="btn btn-primary btn-sm" href="{{ route('roles.edit', $role->id) }}"><i class="fa fa-edit"></i> Edit</a>
                                             @endcan
-
                                             @can('role-delete')
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})">
-                                                <i class="fa fa-trash"></i> Delete
-                                            </button>
-                                            <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('roles.destroy', $p->id) }}" style="display:none;">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $role->id }})"><i class="fa fa-trash"></i> Delete</button>
+                                            <form id="delete-form-{{ $role->id }}" method="POST" action="{{ route('roles.destroy', $role->id) }}" style="display:none;">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>
@@ -92,19 +82,13 @@
                 </div>
             </div>
         </div>
-
-
     </section>
-
-
 </div>
 @endsection
 
-
-
 @push('script')
 <script>
-    function confirmDelete(rolesId) {
+    function confirmDelete(roleId) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
             text: "Data yang dihapus tidak dapat dikembalikan!",
@@ -116,12 +100,12 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + rolesId).submit();
+                document.getElementById('delete-form-' + roleId).submit();
             }
         });
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script>
+<script src="{{ asset('template/back/dist/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('template/back/dist/js/datatable/datatable-basic.init.js') }}"></script>
 @endpush

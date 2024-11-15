@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('log_histories', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('Tabel_Asal', 50)->nullable();
             $table->unsignedBigInteger('ID_Entitas')->nullable();
             $table->enum('Aksi', ['Create', 'Read', 'Update', 'Delete'])->nullable();

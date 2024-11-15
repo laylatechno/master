@@ -58,13 +58,23 @@ class MenuGroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $title = "Halaman Menu Group";
         $subtitle = "Menu Menu Group";
-        $data_menu_group = MenuGroup::orderBy('position', 'asc')->get();
+        
+        $query = MenuGroup::orderBy('position', 'asc');
+        
+        // Apply search filter if a search term is provided
+        if ($request->has('search') && $request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        $data_menu_group = $query->paginate(20); // Menambahkan pagination dengan 10 item per halaman
+    
         return view('menu_group.index', compact('data_menu_group', 'title', 'subtitle'));
     }
+    
 
     /**
      * Show the form for creating a new resource.

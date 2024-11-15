@@ -1,7 +1,7 @@
 <?php
-    
+
 namespace App\Http\Controllers;
-    
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\LogHistori;
@@ -16,12 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-
     function __construct()
     {
         $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'store']]);
@@ -32,45 +26,33 @@ class UserController extends Controller
 
     private function simpanLogHistori($aksi, $tabelAsal, $idEntitas, $pengguna, $dataLama, $dataBaru)
     {
-        $log = new LogHistori();
-        $log->tabel_asal = $tabelAsal;
-        $log->id_entitas = $idEntitas;
-        $log->aksi = $aksi;
-        $log->waktu = now();  
-        $log->pengguna = $pengguna;
-        $log->data_lama = $dataLama;
-        $log->data_baru = $dataBaru;
-        $log->save();
+        LogHistori::create([
+            'tabel_asal' => $tabelAsal,
+            'id_entitas' => $idEntitas,
+            'aksi' => $aksi,
+            'waktu' => now(),
+            'pengguna' => $pengguna,
+            'data_lama' => $dataLama,
+            'data_baru' => $dataBaru,
+        ]);
     }
 
     public function index(Request $request): View
     {
         $title = "Halaman User";
         $subtitle = "Menu User";
-        $data_user = User::all();
-        return view('users.index',compact('data_user','title','subtitle'));
+        $data_user = User::with('roles')->get();
+        return view('users.index', compact('data_user', 'title', 'subtitle'));
     }
-    
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create(): View
     {
         $title = "Halaman Tambah User";
         $subtitle = "Menu Tambah User";
-        $roles = Role::pluck('name','name')->all();
-
-        return view('users.create',compact('roles','title','subtitle'));
+        $roles = Role::pluck('name', 'name');
+        return view('users.create', compact('roles', 'title', 'subtitle'));
     }
-    
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
@@ -87,67 +69,44 @@ class UserController extends Controller
             'password.same' => 'Password dan konfirmasi password harus sama.',
             'roles.required' => 'Peran wajib dipilih.'
         ]);
-    
+
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
-    
-        $users = User::create($input);
-        $users->assignRole($request->input('roles'));
 
-        $loggedInUserId = Auth::id();
+        $user = User::create($input);
+        $user->assignRole($request->input('roles'));
 
-        // Simpan log histori untuk operasi Create dengan user_id yang sedang login
-        $this->simpanLogHistori('Create', 'User', $users->id, $loggedInUserId, null, json_encode($users));
-    
+        $this->simpanLogHistori('Create', 'User', $user->id, Auth::id(), null, json_encode($user));
+
         return redirect()->route('users.index')
-                         ->with('success', 'User berhasil dibuat');
+            ->with('success', 'User berhasil dibuat');
     }
-    
-    
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show($id): View
     {
         $title = "Halaman Lihat User";
         $subtitle = "Menu Lihat User";
-        $data_user = User::find($id);
+        $data_user = User::with('roles')->find($id);
 
-        return view('users.show',compact('data_user','title','subtitle'));
+        return view('users.show', compact('data_user', 'title', 'subtitle'));
     }
-    
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function edit($id): View
     {
         $title = "Halaman Edit User";
         $subtitle = "Menu Edit User";
-        $data_user = User::find($id);
-        $roles = Role::pluck('name','name')->all();
-        $usersRole = $data_user->roles->pluck('name','name')->all();
-    
-        return view('users.edit',compact('data_user','roles','usersRole','title','subtitle'));
+        $data_user = User::with('roles')->find($id);
+        $roles = Role::pluck('name', 'name');
+        $usersRole = $data_user->roles->pluck('name', 'name')->all();
+
+        return view('users.edit', compact('data_user', 'roles', 'usersRole', 'title', 'subtitle'));
     }
-    
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id): RedirectResponse
     {
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'same:confirm-password',
             'roles' => 'required'
         ], [
@@ -157,53 +116,40 @@ class UserController extends Controller
             'password.same' => 'Password dan konfirmasi password harus sama.',
             'roles.required' => 'Peran wajib dipilih.'
         ]);
-    
+
         $input = $request->all();
-        if (!empty($input['password'])) { 
+        if (!empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
-            $input = Arr::except($input, ['password']);    
+            $input = Arr::except($input, ['password']);
         }
-    
-        // Ambil data lama sebelum update
-        $users = User::find($id);
-        $oldData = $users->toArray();
-    
-        // Lakukan update
-        $users->update($input);
-    
-        // Update peran pengguna
+
+        $user = User::find($id);
+        $oldData = $user->toArray();
+
+        $user->update($input);
+
         DB::table('model_has_roles')->where('model_id', $id)->delete();
-        $users->assignRole($request->input('roles'));
-    
-        // Simpan log histori dengan data lama dan data baru
-        $loggedInUserId = Auth::id();
-        $this->simpanLogHistori('Update', 'User', $users->id, $loggedInUserId, json_encode($oldData), json_encode($input));
-    
+        $user->assignRole($request->input('roles'));
+
+        $this->simpanLogHistori('Update', 'User', $user->id, Auth::id(), json_encode($oldData), json_encode($input));
+
         return redirect()->route('users.index')
-                         ->with('success', 'User berhasil diperbaharui');
+            ->with('success', 'User berhasil diperbaharui');
     }
-    
-    
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id): RedirectResponse
     {
         $user = User::find($id);
-    
+
         if (!$user) {
             return redirect()->route('users.index')->with('error', 'User tidak ditemukan');
         }
-    
+
         $this->simpanLogHistori('Delete', 'User', $id, Auth::id(), json_encode($user->toArray()), null);
-    
+
         $user->delete();
-    
+
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus');
     }
-    
 }

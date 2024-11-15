@@ -76,14 +76,24 @@ class MenuItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $title = "Halaman Menu Item";
         $subtitle = "Menu Menu Item";
-        $data_menu_item = MenuItem::orderBy('position', 'asc')->get();
-
+        
+        $query = MenuItem::orderBy('position', 'asc');
+    
+        // Check if search input exists
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+    
+        $data_menu_item = $query->paginate(20);
+    
         return view('menu_item.index', compact('data_menu_item', 'title', 'subtitle'));
     }
+    
 
     /**
      * Show the form for creating a new resource.

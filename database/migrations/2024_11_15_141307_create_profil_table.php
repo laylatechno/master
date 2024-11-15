@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('profil', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('nama_profil')->nullable();
             $table->string('no_id')->nullable();
             $table->string('alamat')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->text('deskripsi_3')->nullable();
             $table->string('logo')->nullable();
             $table->string('favicon')->nullable();
-            $table->string('gambar')->nullable();
+            $table->string('banner')->nullable();
             $table->string('embed_youtube')->nullable();
             $table->text('embed_map')->nullable();
             $table->timestamps();

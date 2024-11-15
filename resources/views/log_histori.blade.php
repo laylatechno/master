@@ -50,7 +50,13 @@
                             @endif
 
                             @can('loghistori-deleteall')
-                            <a href="{{ route('log-histori.delete-all') }}" class="btn btn-danger mb-3" onclick="return confirm('Apakah Anda Yakin Akan Menghapus Semua Data, silahkan Back Up terlebih dahulu?')"><i class="fa fa-trash"></i> Hapus Semua Data</a>
+
+                            <!-- Ganti onClick untuk memanggil SweetAlert -->
+                            <a href="javascript:void(0);"
+                                class="btn btn-danger mb-3"
+                                onclick="confirmDelete()">
+                                <i class="fa fa-trash"></i> Hapus Semua Data
+                            </a>
                             @endcan
                             <table id="scroll_hor"
                                 class="table border table-striped table-bordered display nowrap"
@@ -102,29 +108,31 @@
 </div>
 @endsection
 
+ 
 @push('script')
-<script>
-    function confirmDelete(userId) {
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + userId).submit();
-            }
-        });
-    }
-</script>
+    <!-- Memuat SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script>
+        function confirmDelete() {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Ganti URL penghapusan semua data sesuai dengan route Anda
+                    window.location.href = "{{ route('log-histori.delete-all') }}";
+                }
+            });
+        }
+    </script>
 
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script>

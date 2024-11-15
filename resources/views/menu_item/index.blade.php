@@ -44,7 +44,7 @@
     .card {
         border: solid 1px #ddd;
         margin-bottom: 10px;
-        padding: 10px;
+        padding: 5px;
     }
 
     .card:hover {
@@ -95,7 +95,18 @@
     </div>
 
 
-
+    <!-- Input Pencarian -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form action="{{ route('menu_item.index') }}" method="GET">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Cari Menu Item" value="{{ request('search') }}">
+                    <button type="submit" class="btn btn-primary">Cari</button>
+                    <a href="{{ route('menu_item.index') }}" class="btn btn-warning">Clear</a> <!-- Tombol Clear -->
+                </div>
+            </form>
+        </div>
+    </div>
 
 
 
@@ -177,11 +188,32 @@
             @endforeach
         </div>
     </div>
-
+    <div class="d-flex justify-content-center mt-4">
+        {{ $data_menu_item->links('pagination::bootstrap-4') }}
+    </div>
 </div>
 @endsection
 @push('script')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(permissionId) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + permissionId).submit();
+            }
+        });
+    }
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

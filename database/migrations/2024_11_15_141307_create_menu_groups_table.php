@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\MenuGroup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('menu_items', function (Blueprint $table) {
-            $table->id();
+        Schema::create('menu_groups', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->string('name');
-            $table->string('icon');
-            $table->string('route');
-            $table->boolean('status')->default(true);
+            $table->string('status', 50);
             $table->string('permission_name');
-            $table->foreignId('menu_group_id')->constrained('menu_groups');
             $table->integer('position');
-            $table->foreignId('parent_id')->nullable()->constrained('menu_items'); // Relasi dengan item menu induk (parent)
             $table->timestamps();
         });
     }
@@ -31,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('menu_items');
+        Schema::dropIfExists('menu_groups');
     }
 };

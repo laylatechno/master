@@ -79,6 +79,22 @@
         </div>
     </div>
 
+
+
+
+    <!-- Input Pencarian -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="GET" action="{{ route('menu_group.index') }}" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Cari Menu Group" value="{{ request('search') }}">
+                    <button class="btn btn-primary" type="submit">Cari</button>
+                    <a href="{{ route('menu_group.index') }}" class="btn btn-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Kanban -->
     <section class="kanban">
         <div class="row">
@@ -117,6 +133,11 @@
                 </div>
             </div>
             @endforeach
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            {{ $data_menu_group->links('pagination::bootstrap-4') }}
         </div>
     </section>
 

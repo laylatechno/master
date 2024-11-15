@@ -27,10 +27,10 @@ class AppServiceProvider extends ServiceProvider
         View::share('profil', $profil);
         
 
-        // Menampilkan menu groups dan menu items
+        
         $menus = MenuGroup::with(['items' => function($query) {
-            $query->where('status', 'Aktif');  // Mengambil hanya items dengan status 'Aktif'
-        }])->where('status', 'Aktif')->get();  // Mengambil hanya MenuGroup dengan status 'Aktif'
+            $query->where('status', 'Aktif');   
+        }])->where('status', 'Aktif')->get();   
         
         View::share('menus', $menus);
         

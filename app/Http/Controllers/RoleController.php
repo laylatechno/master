@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\LogHistori;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use DB;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -150,9 +149,8 @@ class RoleController extends Controller
         $subtitle = "Menu Edit Role";
         $data_role = Role::find($id);
         $permission = Permission::get();
-        $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id", $id)
-            ->pluck('role_has_permissions.permission_id', 'role_has_permissions.permission_id')
-            ->all();
+        $rolePermissions = $data_role->permissions->pluck('id')->toArray(); // Menggunakan relasi permissions()
+
 
         return view('roles.edit', compact('data_role', 'permission', 'rolePermissions', 'title', 'subtitle'));
     }
@@ -235,31 +233,31 @@ class RoleController extends Controller
      */
 
      public function destroy($id): RedirectResponse
-     {
-         // Cari role berdasarkan ID
-         $role = Role::find($id);
-     
-         // Cek jika role ditemukan
-         if (!$role) {
-             return redirect()->route('roles.index')->with('error', 'Role tidak ditemukan');
-         }
-     
-         // Ambil permissions yang terkait dengan role sebelum dihapus
-         $permissions = $role->permissions->pluck('name')->toArray();
-     
-         // Gabungkan data role dengan permissions dalam array
-         $roleData = $role->toArray();
-         $roleData['permissions'] = $permissions;
-     
-         // Simpan log histori sebelum menghapus role, termasuk data permissions
-         $this->simpanLogHistori('Delete', 'Role', $id, Auth::id(), json_encode($roleData), null);
-     
-         // Hapus role
-         $role->delete();
-     
-         // Redirect kembali dengan pesan sukses
-         return redirect()->route('roles.index')->with('success', 'Role berhasil dihapus');
-     }
+{
+    // Cari role berdasarkan ID, langsung lempar error jika tidak ditemukan
+    $role = Role::findOrFail($id);
+
+    // Ambil permissions yang terkait dengan role
+    $permissions = $role->permissions->pluck('name')->toArray();
+
+    // Gabungkan data role dengan permissions dalam array
+    $roleData = [
+        'name' => $role->name,
+        'permissions' => $permissions
+    ];
+
+    // Simpan log histori sebelum menghapus role, termasuk data permissions
+    $this->simpanLogHistori('Delete', 'Role', $role->id, Auth::id(), json_encode($roleData), null);
+
+    // Hapus role
+    $role->delete();
+
+    // Redirect kembali dengan pesan sukses
+    return redirect()->route('roles.index')->with('success', 'Role berhasil dihapus');
+}
+
+
+ 
      
      
 }

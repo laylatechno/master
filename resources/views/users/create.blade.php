@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
 @push('css')
-<link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/select2/dist/css/select2.min.css">
+<link rel="stylesheet" href="{{ asset('template/back/dist/libs/select2/dist/css/select2.min.css') }}">
 @endpush
-@section('content')
 
+@section('content')
 <div class="container-fluid">
+    <!-- Breadcrumb Section -->
     <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
@@ -14,106 +15,96 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('users.index') }}">Halaman User</a></li>
-                            <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('users.index') }}">Halaman User</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
                 </div>
-                <div class="col-3">
-                    <div class="text-center mb-n5">
-                        <img src="{{ asset('template/back') }}/dist/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4">
-                    </div>
+                <div class="col-3 text-center">
+                    <img src="{{ asset('template/back/dist/images/breadcrumb/ChatBc.png') }}" alt="" class="img-fluid">
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Form Section -->
     <section class="datatables">
         <div class="row">
             <div class="col-12">
-
                 <div class="card">
                     <div class="card-body">
-                        <div class="table-responsive">
-
-                            @if (count($errors) > 0)
-                            <div class="alert alert-danger">
-                                <strong>Whoops!</strong> Ada beberapa masalah dengan data yang anda masukkan.<br><br>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                            @endif
-
-                            <form method="POST" action="{{ route('users.store') }}">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <strong>Nama:</strong>
-                                            <input type="text" name="name" placeholder="Nama" class="form-control" value="{{ old('name') }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <strong>Email:</strong>
-                                            <input type="email" name="email" placeholder="Email" class="form-control" value="{{ old('email') }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <strong>Password:</strong>
-                                            <input type="password" name="password" placeholder="Password" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <strong>Konfirmasi Password:</strong>
-                                            <input type="password" name="confirm-password" placeholder="Konfirmasi Password" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <strong>Role:</strong>
-                                            <select
-                                                name="roles[]"
-                                                class="select2 form-control"
-                                                multiple="multiple"
-                                                style="height: 36px; width: 100%"
-                                                placeholder="--Pilih Role--">
-
-                                                <option></option> <!-- Placeholder option for select2 -->
-                                                <optgroup label="--Pilih Role--">
-                                                    @foreach ($roles as $value => $label)
-                                                    <option value="{{ $value }}" {{ in_array($value, old('roles', [])) ? 'selected' : '' }}>{{ $label }}</option>
-                                                    @endforeach
-                                                </optgroup>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
-                                        <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa fa-save"></i> Simpan</button>
-                                        <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('users.index') }}"><i class="fa fa-undo"></i> Kembali</a>
-                                    </div>
-                                </div>
-                            </form>
-
+                        @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <strong>Whoops!</strong> Ada beberapa masalah dengan data yang Anda masukkan.
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('users.store') }}">
+                            @csrf
+                            <div class="row">
+                                <!-- Input Nama -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="name" class="form-label"><strong>Nama:</strong></label>
+                                    <input type="text" name="name" id="name" class="form-control" placeholder="Nama" value="{{ old('name') }}">
+                                </div>
+
+                                <!-- Input Email -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="email" class="form-label"><strong>Email:</strong></label>
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="Email" value="{{ old('email') }}">
+                                </div>
+
+                                <!-- Input Password -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="password" class="form-label"><strong>Password:</strong></label>
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Password">
+                                </div>
+
+                                <!-- Input Konfirmasi Password -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="confirm-password" class="form-label"><strong>Konfirmasi Password:</strong></label>
+                                    <input type="password" name="confirm-password" id="confirm-password" class="form-control" placeholder="Konfirmasi Password">
+                                </div>
+
+                                <!-- Select Role -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="roles" class="form-label"><strong>Role:</strong></label>
+                                    <select name="roles[]" id="roles" class="select2 form-control" multiple="multiple" style="width: 100%">
+                                        <option></option>
+                                        @foreach ($roles as $value => $label)
+                                        <option value="{{ $value }}" {{ in_array($value, old('roles', [])) ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Button Actions -->
+                                <div class="col-md-12 mt-3">
+                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Simpan</button>
+                                    <a href="{{ route('users.index') }}" class="btn btn-warning btn-sm"><i class="fa fa-undo"></i> Kembali</a>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-
-
     </section>
-
-
 </div>
 @endsection
 
 @push('script')
-<script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.full.min.js"></script>
-<script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.min.js"></script>
-<script src="{{ asset('template/back') }}/dist/js/forms/select2.init.js"></script>
+<script src="{{ asset('template/back/dist/libs/select2/dist/js/select2.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "--Pilih Role--",
+            allowClear: true
+        });
+    });
+</script>
 @endpush
