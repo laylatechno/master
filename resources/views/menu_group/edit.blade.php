@@ -14,7 +14,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('menu_group.index') }}">Halaman Menu Group</a></li>
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('menu_groups.index') }}">Halaman Menu Group</a></li>
                             <li class="breadcrumb-item">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -45,7 +45,7 @@
                                 </div>
                             @endif
 
-                            <form method="POST" action="{{ route('menu_group.update', $data_menu_group->id) }}">
+                            <form method="POST" action="{{ route('menu_groups.update', $data_menu_group->id) }}">
                                 @csrf
                                 @method('PUT')
 
@@ -81,7 +81,7 @@
 
                                 <div class="mt-3">
                                     <button type="submit" class="btn btn-primary btn-sm mb-3"><i class="fa fa-save"></i> Update</button>
-                                    <a class="btn btn-warning btn-sm mb-3" href="{{ route('menu_group.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                    <a class="btn btn-warning btn-sm mb-3" href="{{ route('menu_groups.index') }}"><i class="fa fa-undo"></i> Kembali</a>
                                 </div>
                             </form>
                         </div>

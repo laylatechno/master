@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LogHistori;
+use App\Models\Product;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -47,7 +48,7 @@ class ProductsController extends Controller
     {
         $title = "Halaman Produk";
         $subtitle = "Menu Produk";
-        $data_product = Products::all();
+        $data_product = Product::all();
         return view('product.index', compact('data_product', 'title', 'subtitle'));
     }
 
@@ -139,7 +140,7 @@ class ProductsController extends Controller
             $input['image'] = ''; // Jika tidak ada image yang diunggah
         }
 
-        $product = Products::create($input);
+        $product = Product::create($input);
         $loggedInUserId = Auth::id();
         // Simpan log histori untuk operasi Create dengan user_id yang sedang login
         $this->simpanLogHistori('Create', 'Produk', $product->id, $loggedInUserId, null, json_encode($product));
@@ -160,7 +161,7 @@ class ProductsController extends Controller
     {
         $title = "Halaman Lihat Produk";
         $subtitle = "Menu Lihat Produk";
-        $data_product = Products::find($id);
+        $data_product = Product::find($id);
         return view('product.show', compact('data_product', 'title', 'subtitle'));
     }
 
@@ -174,7 +175,7 @@ class ProductsController extends Controller
     {
         $title = "Halaman Edit Produk";
         $subtitle = "Menu Edit Produk";
-        $data_product = Products::findOrFail($id); // Data menu item yang sedang diedit
+        $data_product = Product::findOrFail($id); // Data menu item yang sedang diedit
 
         return view('product.edit', compact('data_product', 'title', 'subtitle'));
     }
@@ -205,7 +206,7 @@ class ProductsController extends Controller
     ]);
 
     // Ambil data produk yang akan diupdate
-    $products = Products::findOrFail($id);
+    $products = Product::findOrFail($id);
 
     // Simpan data lama sebelum update
     $oldData = $products->toArray();
@@ -297,7 +298,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        $product = Products::find($id);
+        $product = Product::find($id);
         $product->delete();
         $loggedInProductsId = Auth::id();
         // Simpan log histori untuk operasi Delete dengan product_id yang sedang login dan informasi data yang dihapus

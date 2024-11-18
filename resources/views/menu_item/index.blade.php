@@ -88,7 +88,7 @@
             @endsession
             <div class="pull-right">
                 @can('menuitem-create')
-                <a class="btn btn-success mb-2" href="{{ route('menu_item.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
+                <a class="btn btn-success mb-2" href="{{ route('menu_items.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
                 @endcan
             </div>
         </div>
@@ -98,11 +98,11 @@
     <!-- Input Pencarian -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <form action="{{ route('menu_item.index') }}" method="GET">
+            <form action="{{ route('menu_items.index') }}" method="GET">
                 <div class="input-group">
                     <input type="text" name="search" class="form-control" placeholder="Cari Menu Item" value="{{ request('search') }}">
                     <button type="submit" class="btn btn-primary">Cari</button>
-                    <a href="{{ route('menu_item.index') }}" class="btn btn-warning">Clear</a> <!-- Tombol Clear -->
+                    <a href="{{ route('menu_items.index') }}" class="btn btn-warning">Clear</a> <!-- Tombol Clear -->
                 </div>
             </form>
         </div>
@@ -121,12 +121,12 @@
                         <!-- Tombol Aktif / Nonaktif -->
                         <div class="ml-auto d-flex gap-2">
 
-                            <a class="btn btn-sm {{ $menu_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_item.show',$menu_item->id) }}">
+                            <a class="btn btn-sm {{ $menu_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_items.show',$menu_item->id) }}">
                                 <i class="fa {{ $menu_item->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
                                 {{ $menu_item->status }}
                             </a>
                             @can('menuitem-edit')
-                            <a class="btn btn-primary btn-sm" href="{{ route('menu_item.edit', $menu_item->id) }}">
+                            <a class="btn btn-primary btn-sm" href="{{ route('menu_items.edit', $menu_item->id) }}">
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                             @endcan
@@ -134,7 +134,7 @@
                             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $menu_item->id }})">
                                 <i class="fa fa-trash"></i> Delete
                             </button>
-                            <form id="delete-form-{{ $menu_item->id }}" method="POST" action="{{ route('menu_item.destroy', $menu_item->id) }}" style="display:none;">
+                            <form id="delete-form-{{ $menu_item->id }}" method="POST" action="{{ route('menu_items.destroy', $menu_item->id) }}" style="display:none;">
                                 @csrf
                                 @method('DELETE')
                             </form>
@@ -154,13 +154,13 @@
                                     <!-- Tombol-tombol di sebelah kanan -->
                                     <div class="d-flex gap-2">
 
-                                        <a class="btn btn-sm {{ $sub_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_item.show',$sub_item->id) }}">
+                                        <a class="btn btn-sm {{ $sub_item->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_items.show',$sub_item->id) }}">
                                             <i class="fa {{ $sub_item->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
                                             {{ $sub_item->status }}
                                         </a>
                                         @can('menuitem-edit')
                                         <!-- Edit menu submenu dengan ID sub_item -->
-                                        <a class="btn btn-primary btn-sm" href="{{ route('menu_item.edit', $sub_item->id) }}">
+                                        <a class="btn btn-primary btn-sm" href="{{ route('menu_items.edit', $sub_item->id) }}">
                                             <i class="fa fa-edit"></i> Edit
                                         </a>
                                         @endcan
@@ -168,7 +168,7 @@
                                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $sub_item->id }})">
                                             <i class="fa fa-trash"></i> Delete
                                         </button>
-                                        <form id="delete-form-{{ $sub_item->id }}" method="POST" action="{{ route('menu_item.destroy', $sub_item->id) }}" style="display:none;">
+                                        <form id="delete-form-{{ $sub_item->id }}" method="POST" action="{{ route('menu_items.destroy', $sub_item->id) }}" style="display:none;">
                                             @csrf
                                             @method('DELETE')
                                         </form>
@@ -231,7 +231,7 @@
                 });
 
                 // Kirimkan update hanya untuk menu utama (parent_id === null)
-                fetch("{{ route('menu_item.update_positions') }}", {
+                fetch("{{ route('menu_items.update_positions') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -266,7 +266,7 @@
                         sortedSubItems.push(subItem.getAttribute('data-id'));
                     });
 
-                    fetch("{{ route('menu_item.update_positions') }}", {
+                    fetch("{{ route('menu_items.update_positions') }}", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",

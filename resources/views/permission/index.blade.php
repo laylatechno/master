@@ -35,7 +35,7 @@
                         <div class="table-responsive">
                             <div class="d-flex justify-content-between mb-2">
                                 @can('permission-create')
-                                    <a class="btn btn-success" href="{{ route('permission.create') }}">
+                                    <a class="btn btn-success" href="{{ route('permissions.create') }}">
                                         <i class="fa fa-plus"></i> Tambah Data
                                     </a>
                                 @endcan
@@ -65,12 +65,12 @@
                                             <td>{{ $p->guard_name }}</td>
                                             <td>{{ $p->urutan }}</td>
                                             <td>
-                                                <a class="btn btn-warning btn-sm" href="{{ route('permission.show', $p->id) }}">
+                                                <a class="btn btn-warning btn-sm" href="{{ route('permissions.show', $p->id) }}">
                                                     <i class="fa fa-eye"></i> Show
                                                 </a>
 
                                                 @can('permission-edit')
-                                                    <a class="btn btn-primary btn-sm" href="{{ route('permission.edit', $p->id) }}">
+                                                    <a class="btn btn-primary btn-sm" href="{{ route('permissions.edit', $p->id) }}">
                                                         <i class="fa fa-edit"></i> Edit
                                                     </a>
                                                 @endcan
@@ -79,7 +79,7 @@
                                                     <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})">
                                                         <i class="fa fa-trash"></i> Delete
                                                     </button>
-                                                    <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('permission.destroy', $p->id) }}" style="display:none;">
+                                                    <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('permissions.destroy', $p->id) }}" style="display:none;">
                                                         @csrf
                                                         @method('DELETE')
                                                     </form>

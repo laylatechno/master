@@ -12,7 +12,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('menu_item.index') }}">Halaman Menu Item</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('menu_items.index') }}">Halaman Menu Item</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -78,7 +78,7 @@
                                 </div>
                             </div>
 
-                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('menu_item.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('menu_items.index') }}"><i class="fa fa-undo"></i> Kembali</a>
 
                         </div>
                     </div>

@@ -73,7 +73,7 @@
             @endsession
             <div class="pull-right">
                 @can('menugroup-create')
-                <a class="btn btn-success mb-2" href="{{ route('menu_group.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
+                <a class="btn btn-success mb-2" href="{{ route('menu_groups.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
                 @endcan
             </div>
         </div>
@@ -85,11 +85,11 @@
     <!-- Input Pencarian -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <form method="GET" action="{{ route('menu_group.index') }}" class="mb-4">
+            <form method="GET" action="{{ route('menu_groups.index') }}" class="mb-4">
                 <div class="input-group">
                     <input type="text" name="search" class="form-control" placeholder="Cari Menu Group" value="{{ request('search') }}">
                     <button class="btn btn-primary" type="submit">Cari</button>
-                    <a href="{{ route('menu_group.index') }}" class="btn btn-secondary">Clear</a>
+                    <a href="{{ route('menu_groups.index') }}" class="btn btn-secondary">Clear</a>
                 </div>
             </form>
         </div>
@@ -106,13 +106,13 @@
                             <h5>{{ $menu_group->name }}</h5> <!-- Ukuran ikon diperbesar -->
                             <!-- Tombol Edit dan Hapus di sebelah kanan -->
                             <div class="ml-auto d-flex gap-2">
-                                <a class="btn btn-sm {{ $menu_group->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_group.show',$menu_group->id) }}">
+                                <a class="btn btn-sm {{ $menu_group->status == 'Aktif' ? 'btn-success' : 'btn-warning' }}" href="{{ route('menu_groups.show',$menu_group->id) }}">
                                     <i class="fa {{ $menu_group->status == 'Aktif' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
                                     {{ $menu_group->status }}
                                 </a>
 
                                 @can('menugroup-edit')
-                                <a class="btn btn-primary btn-sm" href="{{ route('menu_group.edit', $menu_group->id) }}">
+                                <a class="btn btn-primary btn-sm" href="{{ route('menu_groups.edit', $menu_group->id) }}">
                                     <i class="fa fa-edit"></i> Edit
                                 </a>
                                 @endcan
@@ -120,7 +120,7 @@
                                 <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $menu_group->id }})">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
-                                <form id="delete-form-{{ $menu_group->id }}" method="POST" action="{{ route('menu_group.destroy', $menu_group->id) }}" style="display:none;">
+                                <form id="delete-form-{{ $menu_group->id }}" method="POST" action="{{ route('menu_groups.destroy', $menu_group->id) }}" style="display:none;">
                                     @csrf
                                     @method('DELETE')
                                 </form>
@@ -183,7 +183,7 @@
                 });
 
                 // Kirimkan data ID yang terurut ke server untuk disimpan
-                fetch("{{ route('menu_group.update_positions') }}", {
+                fetch("{{ route('menu_groups.update_positions') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

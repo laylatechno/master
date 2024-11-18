@@ -10,7 +10,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('permission.index') }}">Halaman Permission</a></li>
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('permissions.index') }}">Halaman Permission</a></li>
                             <li class="breadcrumb-item active" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -38,7 +38,7 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('permission.update', $data_permission->id) }}">
+                        <form method="POST" action="{{ route('permissions.update', $data_permission->id) }}">
                             @csrf
                             @method('PUT')
 
@@ -54,7 +54,7 @@
 
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa fa-save"></i> Update</button>
-                                    <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('permission.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                    <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('permissions.index') }}"><i class="fa fa-undo"></i> Kembali</a>
                                 </div>
                             </div>
                         </form>

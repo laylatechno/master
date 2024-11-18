@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LogHistori;
-use App\Models\DevelopmentCategories;
+use App\Models\DevelopmentCategory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -47,8 +47,8 @@ class DevelopmentCategoriesController extends Controller
     {
         $title = "Halaman Aspek Perkembangan";
         $subtitle = "Menu Aspek Perkembangan";
-        $data_development_categories = DevelopmentCategories::all();
-        return view('development_categories.index', compact('data_development_categories', 'title', 'subtitle'));
+        $data_development_categories = DevelopmentCategory::all();
+        return view('development_category.index', compact('data_development_categories', 'title', 'subtitle'));
     }
 
 
@@ -61,7 +61,7 @@ class DevelopmentCategoriesController extends Controller
     {
         $title = "Halaman Tambah Aspek Perkembangan";
         $subtitle = "Menu Tambah Aspek Perkembangan";
-        return view('development_categories.create', compact('title', 'subtitle'));
+        return view('development_category.create', compact('title', 'subtitle'));
     }
 
 
@@ -85,7 +85,7 @@ class DevelopmentCategoriesController extends Controller
             'position.required' => 'Urutan wajib diisi.',
         ]);
 
-        $development_categories = DevelopmentCategories::create($request->all());
+        $development_categories = DevelopmentCategory::create($request->all());
 
         $loggedInUserId = Auth::id();
         // Simpan log histori untuk operasi Create dengan user_id yang sedang login
@@ -101,7 +101,7 @@ class DevelopmentCategoriesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\DevelopmentCategories  $development_categories
+     * @param  \App\DevelopmentCategory  $development_categories
      * @return \Illuminate\Http\Response
      */
     public function show($id): View
@@ -109,23 +109,23 @@ class DevelopmentCategoriesController extends Controller
     {
         $title = "Halaman Lihat Aspek Perkembangan";
         $subtitle = "Menu Lihat Aspek Perkembangan";
-        $data_development_categories = DevelopmentCategories::find($id);
-        return view('development_categories.show', compact('data_development_categories', 'title', 'subtitle'));
+        $data_development_categories = DevelopmentCategory::find($id);
+        return view('development_category.show', compact('data_development_categories', 'title', 'subtitle'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\DevelopmentCategories  $development_categories
+     * @param  \App\DevelopmentCategory  $development_categories
      * @return \Illuminate\Http\Response
      */
     public function edit($id): View
     {
         $title = "Halaman Edit Aspek Perkembangan";
         $subtitle = "Menu Edit Aspek Perkembangan";
-        $data_development_categories = DevelopmentCategories::findOrFail($id); // Data menu item yang sedang diedit
+        $data_development_categories = DevelopmentCategory::findOrFail($id); // Data menu item yang sedang diedit
 
-        return view('development_categories.edit', compact('data_development_categories', 'title', 'subtitle'));
+        return view('development_category.edit', compact('data_development_categories', 'title', 'subtitle'));
     }
 
 
@@ -134,7 +134,7 @@ class DevelopmentCategoriesController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DevelopmentCategories  $development_categories
+     * @param  \App\Models\DevelopmentCategory  $development_categories
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id): RedirectResponse
@@ -151,7 +151,7 @@ class DevelopmentCategoriesController extends Controller
         ]);
 
         // Cari data berdasarkan ID
-        $development_categories = DevelopmentCategories::find($id);
+        $development_categories = DevelopmentCategory::find($id);
 
         // Jika data tidak ditemukan
         if (!$development_categories) {
@@ -183,16 +183,16 @@ class DevelopmentCategoriesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\DevelopmentCategories  $development_categories
+     * @param  \App\DevelopmentCategory  $development_categories
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $development_categories = DevelopmentCategories::find($id);
+        $development_categories = DevelopmentCategory::find($id);
         $development_categories->delete();
-        $loggedInDevelopmentCategoriesId = Auth::id();
+        $loggedInDevelopmentCategoryId = Auth::id();
         // Simpan log histori untuk operasi Delete dengan development_categories_id yang sedang login dan informasi data yang dihapus
-        $this->simpanLogHistori('Delete', 'Aspek Perkembangan', $id, $loggedInDevelopmentCategoriesId, json_encode($development_categories), null);
+        $this->simpanLogHistori('Delete', 'Aspek Perkembangan', $id, $loggedInDevelopmentCategoryId, json_encode($development_categories), null);
         // Redirect kembali dengan pesan sukses
         return redirect()->route('development_categories.index')->with('success', 'Aspek Perkembangan berhasil dihapus');
     }

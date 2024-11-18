@@ -11,7 +11,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
                             <li class="breadcrumb-item" aria-current="page">
-                                <a class="text-muted text-decoration-none" href="{{ route('permission.index') }}">Halaman Permission</a>
+                                <a class="text-muted text-decoration-none" href="{{ route('permissions.index') }}">Halaman Permission</a>
                             </li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
@@ -40,7 +40,7 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('permission.store') }}">
+                        <form method="POST" action="{{ route('permissions.store') }}">
                             @csrf
                             <div class="row">
                                 @foreach (['name' => 'Nama', 'urutan' => 'Urutan', 'guard_name' => 'Guard'] as $field => $label)
@@ -54,7 +54,7 @@
 
                                 <div class="col-12 mt-3">
                                     <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa fa-save"></i> Simpan</button>
-                                    <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('permission.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                    <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('permissions.index') }}"><i class="fa fa-undo"></i> Kembali</a>
                                 </div>
                             </div>
                         </form>

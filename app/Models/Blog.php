@@ -15,6 +15,6 @@ class Blog extends Model
      * @var array
      */
 
-    protected $table = 'blog';
+    protected $table = 'blogs';
     protected $guarded = [];
 }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Achievement;
 use App\Models\LogHistori;
 use App\Models\Achievements;
-use App\Models\DevelopmentCategories;
+use App\Models\DevelopmentCategory;
+use App\Models\Product;
 use App\Models\Products;
 use App\Models\Stimuli;
 use Illuminate\Http\Request;
@@ -52,12 +54,12 @@ class AchievementsController extends Controller
         $subtitle = "Menu Pencapaian";
 
         // Ambil data untuk dropdown select
-        $developmentCategories = DevelopmentCategories::all(); // Ambil semua kategori perkembangan
+        $developmentCategories = DevelopmentCategory::all(); // Ambil semua kategori perkembangan
         $stimuli = Stimuli::all(); // Ambil semua stimuli
-        $products = Products::all(); // Ambil semua produk
+        $products = Product::all(); // Ambil semua produk
 
         // Ambil data pencapaian
-        $data_achievement = Achievements::all();
+        $data_achievement = Achievement::all();
 
         // Kirim semua data ke view
         return view('achievement.index', compact('data_achievement', 'developmentCategories', 'stimuli', 'products', 'title', 'subtitle'));
@@ -77,9 +79,9 @@ class AchievementsController extends Controller
         $subtitle = "Menu Tambah Pencapaian";
     
         // Ambil data untuk dropdown select
-        $developmentCategories = DevelopmentCategories::all(); // Ambil semua kategori perkembangan
+        $developmentCategories = DevelopmentCategory::all(); // Ambil semua kategori perkembangan
         $stimuli = Stimuli::all(); // Ambil semua stimuli
-        $products = Products::all(); // Ambil semua produk
+        $products = Product::all(); // Ambil semua produk
     
         // Kirim data ke view
         return view('achievement.create', compact('title', 'subtitle', 'developmentCategories', 'stimuli', 'products'));
@@ -112,7 +114,7 @@ class AchievementsController extends Controller
         $achievementData = $request->except(['product_ids', 'stimuli_ids']);
     
         // Membuat pencapaian baru
-        $achievement = Achievements::create($achievementData);
+        $achievement = Achievement::create($achievementData);
     
          // Menyambungkan relasi many-to-many dengan tabel lainnya
          $achievement->stimuli()->sync($request->stimuli_ids); // Menyimpan Stimuli
@@ -144,7 +146,7 @@ class AchievementsController extends Controller
     {
         $title = "Halaman Lihat Pencapaian";
         $subtitle = "Menu Lihat Pencapaian";
-        $data_achievement = Achievements::with(['stimuli', 'products'])->findOrFail($id);
+        $data_achievement = Achievement::with(['stimuli', 'products'])->findOrFail($id);
 
         return view('achievement.show', compact('data_achievement', 'title', 'subtitle'));
     }
@@ -161,12 +163,12 @@ class AchievementsController extends Controller
         $subtitle = "Menu Edit Pencapaian";
     
         // Ambil data untuk dropdown select
-        $developmentCategories = DevelopmentCategories::all(); // Ambil semua kategori perkembangan
+        $developmentCategories = DevelopmentCategory::all(); // Ambil semua kategori perkembangan
         $stimuli = Stimuli::all(); // Ambil semua stimuli
-        $products = Products::all(); // Ambil semua produk
+        $products = Product::all(); // Ambil semua produk
     
         // Data pencapaian yang sedang diedit
-        $data_achievement = Achievements::findOrFail($id);
+        $data_achievement = Achievement::findOrFail($id);
     
         // Kirim data ke view
         return view('achievement.edit', compact('data_achievement', 'title', 'subtitle', 'developmentCategories', 'stimuli', 'products'));
@@ -201,7 +203,7 @@ class AchievementsController extends Controller
         ]);
     
         // Cari data berdasarkan ID
-        $achievement = Achievements::find($id);
+        $achievement = Achievement::find($id);
     
         // Jika data tidak ditemukan
         if (!$achievement) {
@@ -251,7 +253,7 @@ class AchievementsController extends Controller
     public function destroy($id)
     {
         // Cari pencapaian berdasarkan ID
-        $achievement = Achievements::findOrFail($id);
+        $achievement = Achievement::findOrFail($id);
     
         // Menghapus relasi many-to-many terlebih dahulu (jika ada)
         $achievement->stimuli()->detach(); // Menghapus relasi dengan stimuli

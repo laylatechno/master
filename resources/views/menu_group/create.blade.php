@@ -20,7 +20,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('menu_group.index') }}">Halaman Menu Group</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('menu_groups.index') }}">Halaman Menu Group</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -51,7 +51,7 @@
                             </div>
                             @endif
 
-                            <form method="POST" action="{{ route('menu_group.store') }}">
+                            <form method="POST" action="{{ route('menu_groups.store') }}">
                                 @csrf
                                 <div class="row">
                                     <div class="form-group mb-3">
@@ -90,7 +90,7 @@
 
                                     <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
                                         <button type="submit" class="btn btn-primary btn-sm mb-3"><i class="fa fa-save"></i> Simpan</button>
-                                        <a class="btn btn-warning btn-sm mb-3" href="{{ route('menu_group.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                        <a class="btn btn-warning btn-sm mb-3" href="{{ route('menu_groups.index') }}"><i class="fa fa-undo"></i> Kembali</a>
                                     </div>
                                 </div>
                             </form>
