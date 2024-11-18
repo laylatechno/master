@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Produk extends Model
+class Stimuli extends Model
 {
     use HasFactory;
 
@@ -15,6 +15,11 @@ class Produk extends Model
      * @var array
      */
 
-    protected $table = 'produk';
+    protected $table = 'stimuli';
     protected $guarded = [];
+
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievements::class, 'achievement_stimuli');
+    }
 }

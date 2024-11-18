@@ -4,7 +4,7 @@
 
 <div class="container-fluid">
 
-<div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
                 <div class="col-9">
@@ -12,7 +12,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('users.index') }}">Halaman User</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('development_categories.index') }}">Halaman Aspek Perkembangan</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -25,56 +25,49 @@
             </div>
         </div>
     </div>
-    <section class="datatables">
 
+    <section class="datatables">
         <div class="row">
             <div class="col-12">
-
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
 
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                    <div class="form-group">
-                                        <strong>Name:</strong>
-                                        {{ $user->name }}
+                                    <div class="form-item">
+                                        <strong>Nama Aspek Perkembangan:</strong>
+                                        {{ $data_development_categories->name }}
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                    <div class="form-group">
-                                        <strong>Email:</strong>
-                                        {{ $user->email }}
+                                    <div class="form-item">
+                                        <strong>Deskripsi:</strong>
+                                        {{ $data_development_categories->description }}
                                     </div>
                                 </div>
+                                 
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                    <div class="form-group">
-                                        <strong>Roles:</strong>
-                                        @if(!empty($user->getRoleNames()))
-                                        <label>{{ implode(', ', $user->getRoleNames()->toArray()) }}</label>
-                                        @endif
+                                    <div class="form-item">
+                                        <strong>Urutan:</strong>
+                                        {{ $data_development_categories->position }}
                                     </div>
-
                                 </div>
+                                
                             </div>
 
-                            <a class="btn btn-warning mb-2" href="{{ route('users.index') }}"><i class="fa fa-undo"></i> Kembali</a>
-
+                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('development_categories.index') }}"><i class="fa fa-undo"></i> Kembali</a>
 
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-
-
     </section>
 
-
 </div>
+
 @endsection
 
 @push('script')
-
 @endpush

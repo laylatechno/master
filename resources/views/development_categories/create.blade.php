@@ -11,7 +11,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
                             <li class="breadcrumb-item" aria-current="page">
-                                <a class="text-muted text-decoration-none" href="{{ route('permission.index') }}">Halaman Permission</a>
+                                <a class="text-muted text-decoration-none" href="{{ route('development_categories.index') }}">Halaman Aspek Perkembangan</a>
                             </li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
@@ -40,24 +40,30 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('permission.store') }}">
-                            @csrf
-                            <div class="row">
-                                @foreach (['name' => 'Nama', 'urutan' => 'Urutan', 'guard_name' => 'Guard'] as $field => $label)
-                                    <div class="col-12 mb-3">
-                                        <div class="form-group">
-                                            <strong>{{ $label }}:</strong>
-                                            <input type="{{ $field === 'urutan' ? 'number' : 'text' }}" name="{{ $field }}" placeholder="{{ $label }}" class="form-control" value="{{ old($field) }}">
-                                        </div>
+                        <form method="POST" action="{{ route('development_categories.store') }}">
+                                @csrf
+                                <div class="row">
+                                    <div class="form-group mb-3">
+                                        <label for="name">Nama Aspek Penilaian</label>
+                                        <input type="text" name="name" class="form-control" id="name" required>
                                     </div>
-                                @endforeach
+                                    <div class="form-group mb-3">
+                                        <label for="description">Deskripsi</label>
+                                        <textarea class="form-control" name="description" id="description" required></textarea>
+                                         
+                                    </div>
 
-                                <div class="col-12 mt-3">
-                                    <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa fa-save"></i> Simpan</button>
-                                    <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('permission.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                    <div class="form-group mb-3">
+                                        <label for="position">Urutan</label>
+                                        <input type="number" name="position" class="form-control" id="position" required>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
+                                        <button type="submit" class="btn btn-primary btn-sm mb-3"><i class="fa fa-save"></i> Simpan</button>
+                                        <a class="btn btn-warning btn-sm mb-3" href="{{ route('development_categories.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
                     </div>
                 </div>
             </div>

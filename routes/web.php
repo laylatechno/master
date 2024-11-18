@@ -1,4 +1,12 @@
 <?php
+use App\Http\Controllers\AchievementProductsController;
+use App\Http\Controllers\AchievementStimuliController;
+use App\Http\Controllers\AchievementsController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\StimuliController;
+use App\Http\Controllers\DevelopmentCategoriesController;
+use App\Http\Controllers\ChildrenController;
+use App\Http\Controllers\ParentsController;
  
 
 use App\Http\Controllers\BlogController;
@@ -25,6 +33,15 @@ Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::resource('achievement_products', AchievementProductsController::class);
+    Route::resource('achievement_stimuli', AchievementStimuliController::class);
+    Route::resource('achievements', AchievementsController::class);
+    Route::resource('products', ProductsController::class);
+    Route::resource('stimuli', StimuliController::class);
+    Route::resource('development_categories', DevelopmentCategoriesController::class);
+    Route::resource('children', ChildrenController::class);
+    Route::resource('parents', ParentsController::class);
+
 
  
 

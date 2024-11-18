@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->text('detail');
+        Schema::create('achievement_stimuli', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('achievement_id')->constrained('achievements');
+            $table->foreignId('stimuli_id')->constrained('stimuli');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('achievement_stimuli');
     }
 };
